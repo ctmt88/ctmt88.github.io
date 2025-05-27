@@ -1,0 +1,2874 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>臨床血清免疫與病毒學 - 隨機選項版</title>
+    <style>
+        body {
+            font-family: 'Microsoft JhengHei', '微軟正黑體', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        
+        .slide-container {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            box-sizing: border-box;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: white;
+            transition: transform 0.5s ease;
+        }
+        
+        .slide:nth-child(odd) {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        
+        .slide:nth-child(even) {
+            background: linear-gradient(135deg, #e3ffe7 0%, #d9e7ff 100%);
+        }
+        
+        .slide.title-slide {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .question-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        .question-text {
+            font-size: 1.4rem;
+            line-height: 1.6;
+            text-align: center;
+            margin-bottom: 30px;
+            max-width: 900px;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 20px;
+        }
+        
+        .option {
+            padding: 15px 20px;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+            background: white;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+        
+        .option:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+        
+        .option.correct {
+            background: #d4edda;
+            border-color: #28a745;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .option.correct.hidden {
+            background: white;
+            border-color: #ddd;
+            font-weight: normal;
+        }
+        
+        .explanation {
+            max-width: 900px;
+            width: 100%;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+            transition: all 0.3s ease;
+        }
+        
+        .explanation.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .explanation h4 {
+            color: #495057;
+            margin: 0 0 15px 0;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .explanation h4::before {
+            content: "💡";
+            margin-right: 10px;
+        }
+        
+        .explanation-content {
+            line-height: 1.6;
+            color: #6c757d;
+            font-size: 1rem;
+        }
+        
+        .explanation-toggle {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .explanation-toggle:hover {
+            background: #138496;
+            transform: translateY(-1px);
+        }
+        
+        .answer-toggle {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .answer-toggle:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .answer-toggle.show-answers {
+            background: #dc3545;
+        }
+        
+        .answer-toggle.show-answers:hover {
+            background: #c82333;
+        }
+        
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn.shuffle-btn {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .btn.shuffle-btn:hover {
+            background: #e0a800;
+        }
+        
+        .slide-counter {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            z-index: 1000;
+        }
+        
+        .title-slide h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .title-slide p {
+            font-size: 1.4rem;
+            opacity: 0.9;
+            text-align: center;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            .slide {
+                padding: 20px;
+            }
+            
+            .question-text {
+                font-size: 1.2rem;
+            }
+            
+            .options {
+                grid-template-columns: 1fr;
+            }
+            
+            .option {
+                font-size: 1rem;
+                padding: 12px 15px;
+            }
+            
+            .controls {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .btn {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="answer-toggle" id="answer-toggle" onclick="toggleAnswers()">顯示答案</button>
+    
+    <div class="slide-counter">
+        <span id="current-slide">1</span> / <span id="total-slides">11</span>
+    </div>
+    
+    <div class="slide-container" id="slide-container">
+        <!-- Title Slide -->
+        <div class="slide title-slide">
+            <h1>臨床血清免疫與病毒學</h1>
+            <p>模擬考考題 隨機選項版</p>
+            <p>每次載入選項順序都會隨機化</p>
+            <p>點擊下方按鈕開始答題</p>
+        </div>
+        
+        <!-- Question 1 -->
+        <div class="slide">
+            <div class="question-number">第 1 題</div>
+            <div class="question-text">下列有關自體免疫肝炎（autoimmune hepatitis）之敘述，何者正確？</div>
+            <div class="options">
+                <div class="option">(A) 好發於年輕男性</div>
+                <div class="option correct">(B) 病人血中常能測到高價數的抗平滑肌抗體（anti-smooth muscle antibody）</div>
+                <div class="option">(C) 病人血中常能測到高價數的抗粒線體抗體（anti-mitochondrial antibody）</div>
+                <div class="option">(D) 病人血清中IgM抗體顯著增加</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(1)">查看詳解</button>
+            <div class="explanation" id="explanation-1">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>自體免疫肝炎是一種慢性肝臟疾病，特徵如下：</strong><br><br>
+                    • <strong>好發族群：</strong>主要好發於<strong>女性</strong>，而非男性，常見於中年女性<br>
+                    • <strong>血清標記：</strong>血中可檢測到<strong>抗平滑肌抗體（ASMA）</strong>，這是重要的診斷標記<br>
+                    • <strong>鑑別診斷：</strong>抗粒線體抗體主要出現在原發性膽汁性膽管炎，而非自體免疫肝炎<br>
+                    • <strong>免疫球蛋白：</strong>血清中<strong>IgG</strong>抗體增加，而非IgM<br><br>
+                    <strong>正確答案：</strong>病人血中常能測到高價數的抗平滑肌抗體
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 2 -->
+        <div class="slide">
+            <div class="question-number">第 2 題</div>
+            <div class="question-text">免疫抑制劑 fingolimod（FTY720）可用於治療多發性硬化症，其治療機轉為何？</div>
+            <div class="options">
+                <div class="option">(A) 抑制淋巴球的DNA合成</div>
+                <div class="option correct">(B) 抑制淋巴球從淋巴結移出</div>
+                <div class="option">(C) 抑制淋巴球的calcineurin訊息傳遞</div>
+                <div class="option">(D) 抑制淋巴球的mTOR訊息傳遞</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(2)">查看詳解</button>
+            <div class="explanation" id="explanation-2">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>Fingolimod是一種sphingosine-1-phosphate受體調節劑：</strong><br><br>
+                    • <strong>作用機制：</strong>它能<strong>阻止淋巴球從淋巴結移出</strong>到血液循環中<br>
+                    • <strong>治療效果：</strong>減少淋巴球進入中樞神經系統，降低發炎反應<br>
+                    • <strong>非直接作用：</strong>不直接抑制DNA合成、calcineurin或mTOR路徑<br>
+                    • <strong>臨床意義：</strong>這種機制可減少多發性硬化症的復發<br><br>
+                    <strong>正確答案：</strong>抑制淋巴球從淋巴結移出
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 3 -->
+        <div class="slide">
+            <div class="question-number">第 3 題</div>
+            <div class="question-text">Anti-Sm抗體所對抗的抗原是屬於下列何者？</div>
+            <div class="options">
+                <div class="option">(A) dsDNA</div>
+                <div class="option">(B) ssDNA</div>
+                <div class="option">(C) RNA polymerase</div>
+                <div class="option correct">(D) U-RNP</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(3)">查看詳解</button>
+            <div class="explanation" id="explanation-3">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>Anti-Sm抗體是系統性紅斑狼瘡的高特異性標記：</strong><br><br>
+                    • <strong>抗原性質：</strong>Sm抗原屬於<strong>U-RNP複合體</strong>（小分子核糖核蛋白）<br>
+                    • <strong>診斷價值：</strong>此抗體對SLE診斷具有高特異性（>95%）<br>
+                    • <strong>鑑別要點：</strong>不是針對dsDNA、ssDNA或RNA聚合酶<br>
+                    • <strong>臨床意義：</strong>Sm抗體陽性患者通常有較嚴重的腎臟和中樞神經系統病變<br><br>
+                    <strong>正確答案：</strong>U-RNP
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 4 -->
+        <div class="slide">
+            <div class="question-number">第 4 題</div>
+            <div class="question-text">嚴重型的全身性紅斑狼瘡病患，常因下列何種原因而死亡？</div>
+            <div class="options">
+                <div class="option correct">(A) 感染</div>
+                <div class="option">(B) 貧血</div>
+                <div class="option">(C) 原發性腫瘤</div>
+                <div class="option">(D) 次發性腫瘤</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(4)">查看詳解</button>
+            <div class="explanation" id="explanation-4">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>SLE患者死亡的主要原因分析：</strong><br><br>
+                    • <strong>首要死因：</strong><strong>感染</strong>是最常見的死因，占30-50%<br>
+                    • <strong>感染原因：</strong>疾病本身的免疫功能異常加上免疫抑制治療<br>
+                    • <strong>常見感染：</strong>細菌性肺炎、敗血症、機會性感染<br>
+                    • <strong>其他死因：</strong>腎衰竭、心血管疾病、中樞神經系統病變<br><br>
+                    <strong>正確答案：</strong>感染
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 5 -->
+        <div class="slide">
+            <div class="question-number">第 5 題</div>
+            <div class="question-text">硬皮症（scleroderma）出現下列何種症候群時，測定抗中心粒抗體（anti-centromere）對於疾病診斷有不錯的敏感度與特異性？</div>
+            <div class="options">
+                <div class="option">(A) IPEX syndrome</div>
+                <div class="option">(B) NEMO syndrome</div>
+                <div class="option correct">(C) CREST syndrome</div>
+                <div class="option">(D) Sjögren's syndrome</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(5)">查看詳解</button>
+            <div class="explanation" id="explanation-5">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>CREST症候群是限制性硬皮症的一種亞型：</strong><br><br>
+                    • <strong>C</strong>alcinosis cutis（皮膚鈣化）<br>
+                    • <strong>R</strong>aynaud's phenomenon（雷諾氏現象）<br>
+                    • <strong>E</strong>sophageal dysmotility（食道蠕動異常）<br>
+                    • <strong>S</strong>clerodactyly（硬指症）<br>
+                    • <strong>T</strong>elangiectasia（毛細血管擴張）<br><br>
+                    • <strong>血清標記：</strong>抗中心粒抗體在CREST症候群中陽性率達60-90%<br><br>
+                    <strong>正確答案：</strong>CREST syndrome
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 6 -->
+        <div class="slide">
+            <div class="question-number">第 6 題</div>
+            <div class="question-text">下列何種補體成份能在標的細胞表面引發細胞膜攻擊複合物（membrane-attack complex）的形成？</div>
+            <div class="options">
+                <div class="option">(A) C2b</div>
+                <div class="option">(B) C3b</div>
+                <div class="option">(C) C4b</div>
+                <div class="option correct">(D) C5b</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(6)">查看詳解</button>
+            <div class="explanation" id="explanation-6">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>膜攻擊複合物（MAC）的形成過程：</strong><br><br>
+                    • <strong>起始成分：</strong><strong>C5b</strong>是MAC形成的起始成分<br>
+                    • <strong>形成過程：</strong>C5b與C6、C7、C8、C9依序結合<br>
+                    • <strong>最終產物：</strong>形成C5b-9複合物，在細胞膜上形成孔洞<br>
+                    • <strong>生物效應：</strong>導致細胞溶解和死亡<br>
+                    • <strong>其他成分：</strong>C2b、C3b、C4b參與早期補體活化，但不直接形成MAC<br><br>
+                    <strong>正確答案：</strong>C5b
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 7 -->
+        <div class="slide">
+            <div class="question-number">第 7 題</div>
+            <div class="question-text">下列有關可溶性抗原（extractable nuclear antigen, ENA）的抗體檢測之敘述，何者正確？</div>
+            <div class="options">
+                <div class="option">(A) 可以用免疫螢光抗體在Crithidia luciliae上偵測是否有染上動基體（kinetoplast）</div>
+                <div class="option">(B) 可以用免疫螢光抗體在Crithidia luciliae上偵測是否有染上生殖核（nucleus）</div>
+                <div class="option">(C) 可以用免疫螢光抗體在Crithidia luciliae上偵測是否有染上鞭毛（flagellum）</div>
+                <div class="option correct">(D) 可以用歐氏二重擴散法（Ouchterlony double diffusion） 偵測</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(7)">查看詳解</button>
+            <div class="explanation" id="explanation-7">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>ENA抗體檢測方法分析：</strong><br><br>
+                    • <strong>歐氏二重擴散法：</strong>是傳統的ENA檢測方法，可檢測Anti-Sm、Anti-RNP、Anti-Ro/SSA、Anti-La/SSB等<br>
+                    • <strong>Crithidia luciliae：</strong>主要用於檢測抗dsDNA抗體，不是ENA檢測的標準方法<br>
+                    • <strong>其他方法：</strong>現代也使用ELISA、免疫印跡法等方法檢測ENA<br>
+                    • <strong>臨床意義：</strong>ENA抗體譜對自體免疫疾病診斷和分類很重要<br><br>
+                    <strong>正確答案：</strong>可以用歐氏二重擴散法偵測
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 8 -->
+        <div class="slide">
+            <div class="question-number">第 8 題</div>
+            <div class="question-text">下列何者為可誘導細胞增生的致癌基因？①abl ②neu ③K-ras ④NF1 ⑤WT1</div>
+            <div class="options">
+                <div class="option correct">(A) ①②③</div>
+                <div class="option">(B) ②③④</div>
+                <div class="option">(C) ③④⑤</div>
+                <div class="option">(D) ①④⑤</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(8)">查看詳解</button>
+            <div class="explanation" id="explanation-8">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>致癌基因分類分析：</strong><br><br>
+                    • <strong>促增生致癌基因：</strong><br>
+                    　- <strong>abl：</strong>酪胺酸激酶，促進細胞增生（如BCR-ABL）<br>
+                    　- <strong>neu（HER2）：</strong>生長因子受體，促進細胞增生<br>
+                    　- <strong>K-ras：</strong>GTP酶，調節細胞增生信號<br><br>
+                    • <strong>腫瘤抑制基因：</strong><br>
+                    　- <strong>NF1：</strong>抑制細胞增生<br>
+                    　- <strong>WT1：</strong>調節細胞分化，抑制增生<br><br>
+                    <strong>正確答案：</strong>①②③
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 9 -->
+        <div class="slide">
+            <div class="question-number">第 9 題</div>
+            <div class="question-text">下列何者是新冠肺炎（COVID-19）疫苗產生中和抗體的主要抗原？</div>
+            <div class="options">
+                <div class="option">(A) 套膜蛋白（envelope protein）</div>
+                <div class="option correct">(B) 棘狀蛋白（spike protein）</div>
+                <div class="option">(C) 膜蛋白（membrane protein）</div>
+                <div class="option">(D) 核殼蛋白（nucleocapsid protein）</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(9)">查看詳解</button>
+            <div class="explanation" id="explanation-9">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>SARS-CoV-2病毒結構蛋白分析：</strong><br><br>
+                    • <strong>棘狀蛋白（S蛋白）：</strong>是病毒與細胞受體結合的關鍵蛋白，是主要的中和抗體標的，疫苗設計的核心<br>
+                    • <strong>套膜蛋白（E）：</strong>較小，較少產生中和抗體<br>
+                    • <strong>膜蛋白（M）：</strong>主要參與病毒組裝，中和抗體產生較少<br>
+                    • <strong>核殼蛋白（N）：</strong>包裹病毒RNA，較少產生中和抗體<br>
+                    • <strong>疫苗策略：</strong>目前主要疫苗都以S蛋白為標的抗原<br><br>
+                    <strong>正確答案：</strong>棘狀蛋白（spike protein）
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 10 -->
+        <div class="slide">
+            <div class="question-number">第 10 題</div>
+            <div class="question-text">NK細胞表面不表現下列何種分子？</div>
+            <div class="options">
+                <div class="option">(A) CD2</div>
+                <div class="option">(B) CD16</div>
+                <div class="option correct">(C) CD19</div>
+                <div class="option">(D) CD56</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(10)">查看詳解</button>
+            <div class="explanation" id="explanation-10">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>NK細胞表面標記分析：</strong><br><br>
+                    • <strong>NK細胞表現的分子：</strong><br>
+                    　- <strong>CD2：</strong>黏附分子，NK細胞表現<br>
+                    　- <strong>CD16：</strong>FcγRIII，NK細胞的重要標記<br>
+                    　- <strong>CD56：</strong>NCAM，NK細胞的特徵標記<br><br>
+                    • <strong>B細胞特異性標記：</strong><br>
+                    　- <strong>CD19：</strong>B細胞特異性標記，NK細胞不表現<br><br>
+                    • <strong>免疫系統分類：</strong>NK細胞屬於先天免疫系統，不表現適應性免疫細胞標記<br><br>
+                    <strong>正確答案：</strong>CD19
+                </div>
+            </div>
+        </div>
+    </div>
+    
+<!-- Question 11 -->
+        <div class="slide">
+            <div class="question-number">第 11 題</div>
+            <div class="question-text">下列人類疱疹病毒（Human herpesvirus）中，目前何者具有疫苗可用於預防病毒感染？</div>
+            <div class="options">
+                <div class="option correct">(A) 水痘帶狀疱疹病毒（Varicella-zoster virus, VZV）</div>
+                <div class="option">(B) 巨細胞病毒（Cytomegalovirus, CMV）</div>
+                <div class="option">(C) 單純疱疹病毒第一型（Herpes simplex virus type 1, HSV-1）</div>
+                <div class="option">(D) Epstein-Barr Virus（EBV）</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(11)">查看詳解</button>
+            <div class="explanation" id="explanation-11">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>人類疱疹病毒疫苗現況：</strong><br><br>
+                    • <strong>VZV（HHV-3）：</strong>有水痘疫苗和帶狀疱疹疫苗，水痘疫苗是活毒疫苗，預防效果良好<br>
+                    • <strong>CMV（HHV-5）：</strong>目前無有效疫苗，仍在研發中<br>
+                    • <strong>HSV-1（HHV-1）：</strong>疫苗仍在研發階段，尚無商業化產品<br>
+                    • <strong>EBV（HHV-4）：</strong>無商業化疫苗<br>
+                    • <strong>臨床應用：</strong>水痘疫苗已納入常規兒童疫苗接種計畫<br><br>
+                    <strong>正確答案：</strong>水痘帶狀疱疹病毒（VZV）
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 12 -->
+        <div class="slide">
+            <div class="question-number">第 12 題</div>
+            <div class="question-text">下列何種基因會因為受到訊息傳遞而發生基因重組（gene rearrangement）？</div>
+            <div class="options">
+                <div class="option">(A) MHC class I與MHC class II</div>
+                <div class="option">(B) 免疫球蛋白與MHC class I</div>
+                <div class="option">(C) T細胞接受器（TCR）與MHC class I</div>
+                <div class="option correct">(D) T細胞接受器（TCR）與免疫球蛋白</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(12)">查看詳解</button>
+            <div class="explanation" id="explanation-12">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>適應性免疫系統基因重組機制：</strong><br><br>
+                    • <strong>TCR基因：</strong>在T細胞發育過程中發生V(D)J重組，產生多樣化的T細胞受體<br>
+                    • <strong>免疫球蛋白基因：</strong>在B細胞發育過程中發生V(D)J重組，產生多樣化的抗體<br>
+                    • <strong>重組機制：</strong>這種重組產生抗原受體的多樣性，是適應性免疫的基礎<br>
+                    • <strong>MHC基因：</strong>不發生重組，而是具有高度多態性（polymorphism）<br>
+                    • <strong>生物意義：</strong>基因重組是適應性免疫系統區別於先天免疫系統的重要特徵<br><br>
+                    <strong>正確答案：</strong>T細胞接受器（TCR）與免疫球蛋白
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 13 -->
+        <div class="slide">
+            <div class="question-number">第 13 題</div>
+            <div class="question-text">下列何者不是T細胞可辨識的腫瘤抗原？</div>
+            <div class="options">
+                <div class="option">(A) 由腫瘤特異性基因所編碼的抗原</div>
+                <div class="option">(B) 由多種正常基因突變所編碼的抗原</div>
+                <div class="option">(C) 在特殊的分化時期或分化株系才會表現的抗原</div>
+                <div class="option correct">(D) 正常細胞表現的抗原</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(13)">查看詳解</button>
+            <div class="explanation" id="explanation-13">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>T細胞辨識的腫瘤抗原類型分析：</strong><br><br>
+                    • <strong>腫瘤特異性抗原（TSA）：</strong>僅在腫瘤細胞表現，如病毒蛋白、融合蛋白<br>
+                    • <strong>新抗原（Neoantigens）：</strong>由基因突變產生的新抗原，免疫治療的重要標的<br>
+                    • <strong>腫瘤相關抗原（TAA）：</strong>在特定分化階段或組織特異性表現，如胚胎抗原<br>
+                    • <strong>正常細胞抗原：</strong>T細胞通常對正常自體抗原產生免疫耐受<br>
+                    • <strong>免疫治療意義：</strong>腫瘤免疫治療主要針對前三類抗原設計<br><br>
+                    <strong>正確答案：</strong>正常細胞表現的抗原
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 14 -->
+        <div class="slide">
+            <div class="question-number">第 14 題</div>
+            <div class="question-text">下列那一種分子不屬於細菌的pathogen-associated molecular patterns（PAMP）？</div>
+            <div class="options">
+                <div class="option">(A) diacyl lipopeptides</div>
+                <div class="option">(B) flagellin</div>
+                <div class="option">(C) CpG-unmethylated DNA</div>
+                <div class="option correct">(D) single-stranded RNA</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(14)">查看詳解</button>
+            <div class="explanation" id="explanation-14">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>細菌PAMP分子特徵：</strong><br><br>
+                    • <strong>Diacyl lipopeptides：</strong>細菌脂蛋白成分，被TLR2/TLR6識別<br>
+                    • <strong>Flagellin：</strong>細菌鞭毛蛋白，被TLR5識別<br>
+                    • <strong>CpG-unmethylated DNA：</strong>細菌DNA的特徵，被TLR9識別<br>
+                    • <strong>Single-stranded RNA：</strong>主要是病毒PAMP，被TLR7/TLR8識別<br>
+                    • <strong>先天免疫：</strong>PAMP被Toll-like receptors識別，啟動先天免疫反應<br><br>
+                    <strong>正確答案：</strong>single-stranded RNA
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 15 -->
+        <div class="slide">
+            <div class="question-number">第 15 題</div>
+            <div class="question-text">下列何者不適合用來檢測移植排斥反應？</div>
+            <div class="options">
+                <div class="option">(A) 混合淋巴球反應（MLR）</div>
+                <div class="option">(B) 人類白血球組織抗原分型（HLA typing）</div>
+                <div class="option">(C) 淋巴球微毒殺試驗（lymphocyte microcytotoxicity method）</div>
+                <div class="option correct">(D) 急性期蛋白（acute phase proteins）</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(15)">查看詳解</button>
+            <div class="explanation" id="explanation-15">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>移植排斥反應檢測方法比較：</strong><br><br>
+                    • <strong>MLR：</strong>混合淋巴球反應，評估供受者HLA相容性和T細胞反應性<br>
+                    • <strong>HLA分型：</strong>評估供受者HLA匹配程度，移植前必要檢查<br>
+                    • <strong>淋巴球微毒殺試驗：</strong>檢測預存的抗HLA抗體，評估超急性排斥風險<br>
+                    • <strong>急性期蛋白：</strong>非特異性發炎指標，無法特異性檢測移植排斥<br>
+                    • <strong>排斥機制：</strong>主要是T細胞介導的免疫反應，需要特異性檢測方法<br><br>
+                    <strong>正確答案：</strong>急性期蛋白（acute phase proteins）
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 16 -->
+        <div class="slide">
+            <div class="question-number">第 16 題</div>
+            <div class="question-text">MHC class II分子結合的抗原可呈獻給下列何種細胞？</div>
+            <div class="options">
+                <div class="option correct">(A) CD4 T細胞</div>
+                <div class="option">(B) CD8 T細胞</div>
+                <div class="option">(C) B細胞</div>
+                <div class="option">(D) 樹突細胞</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(16)">查看詳解</button>
+            <div class="explanation" id="explanation-16">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>MHC分子與T細胞的相互作用：</strong><br><br>
+                    • <strong>MHC class II + CD4：</strong>MHC II分子結合CD4分子，呈獻抗原給CD4+ T細胞（輔助T細胞）<br>
+                    • <strong>MHC class I + CD8：</strong>MHC I分子結合CD8分子，呈獻抗原給CD8+ T細胞（毒殺T細胞）<br>
+                    • <strong>抗原來源：</strong>MHC II主要呈獻外來抗原（胞外病原體）<br>
+                    • <strong>表現細胞：</strong>MHC II主要表現在抗原呈獻細胞（APC）上<br>
+                    • <strong>免疫功能：</strong>啟動CD4+ T細胞，調節免疫反應<br><br>
+                    <strong>正確答案：</strong>CD4 T細胞
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 17 -->
+        <div class="slide">
+            <div class="question-number">第 17 題</div>
+            <div class="question-text">下列何種分子並未參與在reactive oxygen species（ROS）的產生？</div>
+            <div class="options">
+                <div class="option">(A) NADPH phagosome oxidase</div>
+                <div class="option">(B) superoxide dismutase</div>
+                <div class="option correct">(C) lysozyme</div>
+                <div class="option">(D) myeloperoxidase</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(17)">查看詳解</button>
+            <div class="explanation" id="explanation-17">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>ROS產生相關分子功能：</strong><br><br>
+                    • <strong>NADPH氧化酶：</strong>主要的ROS產生酶，將氧分子還原為超氧化物<br>
+                    • <strong>Superoxide dismutase：</strong>將超氧化物轉換為過氧化氫，參與ROS代謝<br>
+                    • <strong>Myeloperoxidase：</strong>利用過氧化氫產生次氯酸等強氧化劑<br>
+                    • <strong>Lysozyme：</strong>分解細菌細胞壁肽聚糖的酶，不參與ROS產生<br>
+                    • <strong>殺菌機制：</strong>ROS是嗜中性球和巨噬細胞重要的殺菌機制<br><br>
+                    <strong>正確答案：</strong>lysozyme
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 18 -->
+        <div class="slide">
+            <div class="question-number">第 18 題</div>
+            <div class="question-text">下列何種調節因子能結合C3轉化酶（convertase），促使其去活化（inactivation）？</div>
+            <div class="options">
+                <div class="option correct">(A) decay-accelerating factor</div>
+                <div class="option">(B) C-reactive protein</div>
+                <div class="option">(C) properdin</div>
+                <div class="option">(D) Factor B</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(18)">查看詳解</button>
+            <div class="explanation" id="explanation-18">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>補體調節因子功能比較：</strong><br><br>
+                    • <strong>DAF（CD55）：</strong>結合並加速C3轉化酶的解離和失活，保護自體細胞<br>
+                    • <strong>C-reactive protein：</strong>急性期蛋白，能夠活化補體系統<br>
+                    • <strong>Properdin：</strong>穩定替代路徑C3轉化酶，延長其半衰期<br>
+                    • <strong>Factor B：</strong>替代路徑C3轉化酶的重要成分<br>
+                    • <strong>調節機制：</strong>DAF防止補體在自體細胞表面過度活化<br><br>
+                    <strong>正確答案：</strong>decay-accelerating factor
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 19 -->
+        <div class="slide">
+            <div class="question-number">第 19 題</div>
+            <div class="question-text">全身性紅斑狼瘡最常發生於下列何種病患？</div>
+            <div class="options">
+                <div class="option">(A) 女嬰</div>
+                <div class="option">(B) 男嬰</div>
+                <div class="option correct">(C) 女性成人</div>
+                <div class="option">(D) 男性成人</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(19)">查看詳解</button>
+            <div class="explanation" id="explanation-19">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>SLE的流行病學特徵：</strong><br><br>
+                    • <strong>性別差異：</strong>女性發病率比男性高9-10倍，明顯的性別偏好<br>
+                    • <strong>好發年齡：</strong>主要發生在15-45歲的育齡女性<br>
+                    • <strong>荷爾蒙因素：</strong>雌激素可能促進自體免疫反應<br>
+                    • <strong>種族差異：</strong>非裔美國人、西班牙裔、亞洲人發病率較高<br>
+                    • <strong>兒童SLE：</strong>相對少見，但症狀通常較嚴重<br><br>
+                    <strong>正確答案：</strong>女性成人
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 20 -->
+        <div class="slide">
+            <div class="question-number">第 20 題</div>
+            <div class="question-text">細胞激素會影響輔助型T細胞（helper T cells, Th）的分化，下列何者直接參與第二型輔助型T細胞（Th2）的分化？</div>
+            <div class="options">
+                <div class="option correct">(A) IL-4</div>
+                <div class="option">(B) IL-6</div>
+                <div class="option">(C) IL-12</div>
+                <div class="option">(D) IL-23</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(20)">查看詳解</button>
+            <div class="explanation" id="explanation-20">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>Th細胞分化的細胞激素調節：</strong><br><br>
+                    • <strong>IL-4：</strong>促進Th2分化的關鍵細胞激素，誘導GATA3轉錄因子表現<br>
+                    • <strong>IL-12：</strong>促進Th1分化，誘導T-bet轉錄因子<br>
+                    • <strong>IL-6 + TGF-β：</strong>促進Th17分化，誘導RORγt轉錄因子<br>
+                    • <strong>IL-23：</strong>維持和擴增Th17細胞，不直接參與初始分化<br>
+                    • <strong>Th2功能：</strong>主要對抗寄生蟲感染，參與過敏反應和體液免疫<br><br>
+                    <strong>正確答案：</strong>IL-4
+                </div>
+            </div>
+        </div>
+
+<!-- Question 21 -->
+        <div class="slide">
+            <div class="question-number">第 21 題</div>
+            <div class="question-text">HLA-B27陽性結果與下列何種疾病最相關？</div>
+            <div class="options">
+                <div class="option">(A) 第一型糖尿病</div>
+                <div class="option">(B) 類風濕性關節炎</div>
+                <div class="option correct">(C) 僵直性脊椎炎</div>
+                <div class="option">(D) 過敏性氣喘</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(21)">查看詳解</button>
+            <div class="explanation" id="explanation-21">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>HLA-B27相關疾病分析：</strong><br><br>
+                    • <strong>僵直性脊椎炎：</strong>90-95%患者HLA-B27陽性，是最強的關聯性<br>
+                    • <strong>脊椎關節病變群：</strong>包括反應性關節炎、銀屑病性關節炎等<br>
+                    • <strong>第一型糖尿病：</strong>與HLA-DR3、DR4相關，不是B27<br>
+                    • <strong>類風濕性關節炎：</strong>與HLA-DR4相關<br>
+                    • <strong>分子機制：</strong>可能與「分子擬態」理論有關，HLA-B27與某些微生物抗原相似<br><br>
+                    <strong>正確答案：</strong>僵直性脊椎炎
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 22 -->
+        <div class="slide">
+            <div class="question-number">第 22 題</div>
+            <div class="question-text">毒殺性T細胞殺死標的細胞的活性，需要下列那些分子共同作用？①T細胞接受器 ②第一型組織相容性抗原（class I MHC） ③第二型組織相容性抗原（class II MHC） ④抗原 ⑤抗體</div>
+            <div class="options">
+                <div class="option correct">(A) ①②④</div>
+                <div class="option">(B) ②③④</div>
+                <div class="option">(C) ①③⑤</div>
+                <div class="option">(D) ②④⑤</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(22)">查看詳解</button>
+            <div class="explanation" id="explanation-22">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>CTL殺死標的細胞的分子機制：</strong><br><br>
+                    • <strong>TCR（①）：</strong>識別MHC I-抗原複合體，提供特異性<br>
+                    • <strong>MHC class I（②）：</strong>呈獻內源性抗原給CD8+ T細胞<br>
+                    • <strong>抗原（④）：</strong>病毒蛋白、腫瘤抗原等內源性蛋白<br>
+                    • <strong>不需要的分子：</strong><br>
+                    　- MHC class II：主要與CD4+ T細胞作用<br>
+                    　- 抗體：不直接參與CTL殺傷機制<br>
+                    • <strong>殺傷機制：</strong>通過perforin/granzyme或Fas/FasL途徑<br><br>
+                    <strong>正確答案：</strong>①②④
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 23 -->
+        <div class="slide">
+            <div class="question-number">第 23 題</div>
+            <div class="question-text">下列何者不位於人類第6條染色體上？</div>
+            <div class="options">
+                <div class="option">(A) LMP7</div>
+                <div class="option">(B) TAP1</div>
+                <div class="option">(C) TNF-α</div>
+                <div class="option correct">(D) IFN-γ</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(23)">查看詳解</button>
+            <div class="explanation" id="explanation-23">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>第6條染色體免疫基因群：</strong><br><br>
+                    • <strong>HLA複合體：</strong>位於6p21.3區域，是重要的免疫基因群<br>
+                    • <strong>LMP7：</strong>免疫蛋白酶體亞基，位於HLA class II區域<br>
+                    • <strong>TAP1：</strong>抗原轉運蛋白，位於HLA class II區域<br>
+                    • <strong>TNF-α：</strong>位於HLA class I和class III之間<br>
+                    • <strong>IFN-γ：</strong>位於第12條染色體12q24區域<br>
+                    • <strong>基因群意義：</strong>第6條染色體集中了多個免疫相關重要基因<br><br>
+                    <strong>正確答案：</strong>IFN-γ
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 24 -->
+        <div class="slide">
+            <div class="question-number">第 24 題</div>
+            <div class="question-text">下列何種公費疫苗剛出生就要接種？</div>
+            <div class="options">
+                <div class="option correct">(A) B型肝炎</div>
+                <div class="option">(B) MMR</div>
+                <div class="option">(C) 流感疫苗</div>
+                <div class="option">(D) 白喉百日咳破傷風</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(24)">查看詳解</button>
+            <div class="explanation" id="explanation-24">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>新生兒疫苗接種時程：</strong><br><br>
+                    • <strong>B型肝炎疫苗：</strong>出生24小時內接種第一劑，預防母嬰垂直傳染<br>
+                    • <strong>其他疫苗時程：</strong><br>
+                    　- MMR疫苗：12-15個月大開始接種<br>
+                    　- 流感疫苗：6個月大開始接種<br>
+                    　- 白喉百日咳破傷風：2個月大開始接種<br>
+                    • <strong>緊急性：</strong>B肝病毒可垂直傳染，需要立即保護<br>
+                    • <strong>免疫效果：</strong>早期接種可建立長期保護力<br><br>
+                    <strong>正確答案：</strong>B型肝炎
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 25 -->
+        <div class="slide">
+            <div class="question-number">第 25 題</div>
+            <div class="question-text">下列有關生發中心（germinal center）之敘述，何者正確？</div>
+            <div class="options">
+                <div class="option">(A) 淋巴濾泡（lymphoid follicles）包含生發中心構成初級淋巴濾泡（primary lymphoid follicles）</div>
+                <div class="option">(B) 生發中心的暗區（dark zone）由表現CXCR4及CXCR5的基質細胞（stromal cell）所構成</div>
+                <div class="option">(C) 生發中心的亮區（light zone）由表現CXCR4的生發中心母細胞（centroblasts）所構成</div>
+                <div class="option correct">(D) B細胞能夠藉由CXCR4之表現與否在生發中心的暗區（dark zone）與亮區（light zone）來回進出</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(25)">查看詳解</button>
+            <div class="explanation" id="explanation-25">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>生發中心的結構與功能：</strong><br><br>
+                    • <strong>淋巴濾泡分類：</strong>含生發中心的是次級濾泡，不含的是初級濾泡<br>
+                    • <strong>暗區組成：</strong>主要是大量分裂的centroblasts（生發中心母細胞）<br>
+                    • <strong>亮區組成：</strong>centrocytes（生發中心細胞）和濾泡樹突細胞<br>
+                    • <strong>B細胞遷移：</strong>通過改變CXCR4/CXCR5表現在兩區間移動<br>
+                    　- 暗區：CXCR4高表現<br>
+                    　- 亮區：CXCR5高表現<br>
+                    • <strong>功能意義：</strong>抗體親和力成熟和記憶B細胞產生的場所<br><br>
+                    <strong>正確答案：</strong>B細胞能夠藉由CXCR4之表現與否在暗區與亮區來回進出
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 26 -->
+        <div class="slide">
+            <div class="question-number">第 26 題</div>
+            <div class="question-text">目前最常用於治療腎細胞癌（renal cell carcinoma）及黑色素細胞瘤（melanoma）的細胞激素為：</div>
+            <div class="options">
+                <div class="option">(A) IL-4</div>
+                <div class="option">(B) IL-1</div>
+                <div class="option correct">(C) IL-2</div>
+                <div class="option">(D) CSF（colony-stimulating factor）</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(26)">查看詳解</button>
+            <div class="explanation" id="explanation-26">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>IL-2在腫瘤免疫治療中的應用：</strong><br><br>
+                    • <strong>高劑量IL-2療法：</strong>用於轉移性腎細胞癌和黑色素瘤<br>
+                    • <strong>作用機制：</strong>激活CD8+ T細胞和NK細胞的抗腫瘤活性<br>
+                    • <strong>臨床效果：</strong>可誘導部分患者完全緩解<br>
+                    • <strong>副作用：</strong>毛細血管滲漏症候群（CLS），需要加護病房監護<br>
+                    • <strong>現代發展：</strong>現在更多使用檢查點抑制劑（PD-1/PD-L1抗體）<br>
+                    • <strong>CAR-T應用：</strong>也使用IL-2支持T細胞增殖<br><br>
+                    <strong>正確答案：</strong>IL-2
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 27 -->
+        <div class="slide">
+            <div class="question-number">第 27 題</div>
+            <div class="question-text">下列何種因子可能與狼瘡疾病引起的習慣性流產最相關？</div>
+            <div class="options">
+                <div class="option correct">(A) 抗磷脂質抗體</div>
+                <div class="option">(B) 抗核抗體</div>
+                <div class="option">(C) 免疫複合體</div>
+                <div class="option">(D) 漿細胞</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(27)">查看詳解</button>
+            <div class="explanation" id="explanation-27">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>抗磷脂質症候群（APS）與習慣性流產：</strong><br><br>
+                    • <strong>抗磷脂質抗體：</strong>包括抗心磷脂抗體、β2-糖蛋白I抗體、狼瘡抗凝血因子<br>
+                    • <strong>血栓機制：</strong>導致血栓形成傾向，影響胎盤血管<br>
+                    • <strong>妊娠併發症：</strong><br>
+                    　- 習慣性流產<br>
+                    　- 胎兒宮內發育遲緩<br>
+                    　- 胎盤早期剝離<br>
+                    　- 子癇前症<br>
+                    • <strong>治療策略：</strong>低劑量阿司匹林、肝素抗凝治療<br>
+                    • <strong>SLE關聯：</strong>約1/3 SLE患者有抗磷脂質抗體<br><br>
+                    <strong>正確答案：</strong>抗磷脂質抗體
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 28 -->
+        <div class="slide">
+            <div class="question-number">第 28 題</div>
+            <div class="question-text">下列何種免疫抑制劑使用在器官移植中最能抑制巨噬細胞分泌細胞激素？</div>
+            <div class="options">
+                <div class="option">(A) Anti-CD3 monoclonal antibody</div>
+                <div class="option">(B) CTLA4-Ig</div>
+                <div class="option correct">(C) Corticosteroid</div>
+                <div class="option">(D) Cyclosporine</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(28)">查看詳解</button>
+            <div class="explanation" id="explanation-28">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>免疫抑制劑的作用機制比較：</strong><br><br>
+                    • <strong>類固醇（Corticosteroid）：</strong><br>
+                    　- 廣泛抑制發炎反應<br>
+                    　- 抑制巨噬細胞細胞激素分泌<br>
+                    　- 抑制NF-κB轉錄因子活性<br><br>
+                    • <strong>其他藥物作用：</strong><br>
+                    　- Anti-CD3：主要針對T細胞<br>
+                    　- CTLA4-Ig：阻斷T細胞共刺激信號<br>
+                    　- Cyclosporine：抑制T細胞calcineurin信號<br><br>
+                    • <strong>臨床應用：</strong>類固醇常用於急性排斥反應治療<br><br>
+                    <strong>正確答案：</strong>Corticosteroid
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 29 -->
+        <div class="slide">
+            <div class="question-number">第 29 題</div>
+            <div class="question-text">下列何者並非腫瘤逃脫免疫攻擊的機制？</div>
+            <div class="options">
+                <div class="option">(A) 腫瘤細胞分泌TGF-β誘發調節型T細胞</div>
+                <div class="option">(B) 腫瘤細胞降低其MHC class I分子的表現量</div>
+                <div class="option">(C) 腫瘤細胞降低其CD80的表現量</div>
+                <div class="option correct">(D) 腫瘤細胞降低其PD-L1的表現量</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(29)">查看詳解</button>
+            <div class="explanation" id="explanation-29">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>腫瘤免疫逃脫機制分析：</strong><br><br>
+                    • <strong>真正的逃脫機制：</strong><br>
+                    　- <strong>分泌TGF-β：</strong>誘導調節性T細胞，抑制免疫反應<br>
+                    　- <strong>降低MHC I：</strong>避免被CTL識別和攻擊<br>
+                    　- <strong>降低CD80：</strong>減少T細胞共刺激信號<br><br>
+                    • <strong>錯誤選項分析：</strong><br>
+                    　- <strong>增加PD-L1：</strong>是腫瘤逃脫的重要機制，不是降低<br>
+                    　- PD-L1高表現會抑制T細胞活性<br><br>
+                    • <strong>治療意義：</strong>PD-L1/PD-1抑制劑是重要的免疫治療藥物<br><br>
+                    <strong>正確答案：</strong>腫瘤細胞降低其PD-L1的表現量
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 30 -->
+        <div class="slide">
+            <div class="question-number">第 30 題</div>
+            <div class="question-text">下列有關吞噬作用（phagocytosis）的敘述，何者錯誤？</div>
+            <div class="options">
+                <div class="option">(A) 巨噬細胞、嗜中性白血球和嗜酸性白血球皆有吞噬作用活性</div>
+                <div class="option">(B) 吞噬作用主要是吞噬顆粒狀（particulate）抗原</div>
+                <div class="option correct">(C) 吞噬作用是抗原特異性之免疫反應</div>
+                <div class="option">(D) 由補體、抗體與抗原結合所形成的複合物可促進吞噬作用</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(30)">查看詳解</button>
+            <div class="explanation" id="explanation-30">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>吞噬作用的特性分析：</strong><br><br>
+                    • <strong>吞噬細胞種類：</strong>巨噬細胞、中性球、嗜酸性球都有吞噬能力<br>
+                    • <strong>吞噬對象：</strong>主要吞噬顆粒狀物質，如細菌、細胞碎片、外來顆粒<br>
+                    • <strong>免疫特性：</strong><br>
+                    　- <strong>非特異性：</strong>屬於先天免疫，不具抗原特異性<br>
+                    　- 與適應性免疫的抗原特異性不同<br>
+                    • <strong>調理作用（Opsonization）：</strong><br>
+                    　- 補體C3b結合抗原<br>
+                    　- 抗體Fc段結合抗原<br>
+                    　- 大幅增強吞噬效率<br><br>
+                    <strong>正確答案：</strong>吞噬作用是抗原特異性之免疫反應
+                </div>
+            </div>
+        </div>
+
+<!-- Question 31 -->
+        <div class="slide">
+            <div class="question-number">第 31 題</div>
+            <div class="question-text">下列何者是目前嘗試移植豬的器官給人類，技術上不易成功的最大障礙？</div>
+            <div class="options">
+                <div class="option">(A) 豬和人的主要組織相容性抗原（major histocompatibility complex）差異過大，產生排斥</div>
+                <div class="option">(B) 豬和人的紅血球抗原差異過大，產生排斥</div>
+                <div class="option correct">(C) 人體內的自然抗體（natural antibodies）對抗豬的細胞表面醣抗原，產生排斥</div>
+                <div class="option">(D) 豬器官的特殊微生物，造成移植病人感染</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(31)">查看詳解</button>
+            <div class="explanation" id="explanation-31">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>異種移植的主要障礙：</strong><br><br>
+                    • <strong>自然抗體問題：</strong>人類血中存在抗α-Gal抗體（約1-2%的總IgG）<br>
+                    • <strong>α-Gal抗原：</strong>豬細胞表面的醣抗原Galα(1,3)Galβ(1,4)GlcNAc，人類不表現<br>
+                    • <strong>超急性排斥：</strong>自然抗體立即識別並攻擊豬器官，數分鐘內發生<br>
+                    • <strong>解決方案：</strong><br>
+                    　- 基因改造豬，敲除α-Gal合成酶（GGTA1）基因<br>
+                    　- 導入人類補體調節蛋白基因<br>
+                    • <strong>臨床進展：</strong>目前已有成功的異種心臟移植案例<br><br>
+                    <strong>正確答案：</strong>人體內的自然抗體對抗豬的細胞表面醣抗原
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 32 -->
+        <div class="slide">
+            <div class="question-number">第 32 題</div>
+            <div class="question-text">紅斑性狼瘡病人體內的那種免疫球蛋白最常見非特異性增加？①IgG ②IgM ③IgA ④IgD⑤IgE</div>
+            <div class="options">
+                <div class="option correct">(A) ①②</div>
+                <div class="option">(B) ②③</div>
+                <div class="option">(C) ③④</div>
+                <div class="option">(D) ④⑤</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(32)">查看詳解</button>
+            <div class="explanation" id="explanation-32">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>SLE患者免疫球蛋白變化：</strong><br><br>
+                    • <strong>IgG增加：</strong>最常見的變化，特別是IgG1和IgG3亞類<br>
+                    • <strong>IgM增加：</strong>也常見增加，反映B細胞過度活化<br>
+                    • <strong>多株性增加：</strong>反映多個B細胞株系同時活化<br>
+                    • <strong>自體抗體：</strong>主要是IgG類型，如抗dsDNA、抗Sm等<br>
+                    • <strong>其他變化：</strong><br>
+                    　- IgA：通常無顯著變化<br>
+                    　- IgD：很少增加<br>
+                    　- IgE：可能輕微增加，但不是主要特徵<br>
+                    • <strong>臨床意義：</strong>反映免疫系統的過度活化狀態<br><br>
+                    <strong>正確答案：</strong>①②（IgG和IgM）
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 33 -->
+        <div class="slide">
+            <div class="question-number">第 33 題</div>
+            <div class="question-text">下列有關抗體之敘述，何者錯誤？</div>
+            <div class="options">
+                <div class="option">(A) 由重鏈（heavy chain）決定抗體之類別（class）</div>
+                <div class="option">(B) 重鏈與輕鏈皆具有固定區（constant region）</div>
+                <div class="option">(C) 重鏈與輕鏈皆具有變異區（variable region）</div>
+                <div class="option correct">(D) B細胞進行類別轉換（class switch）之後，抗體的抗原結合區（antigen binding sites）也會隨之改變</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(33)">查看詳解</button>
+            <div class="explanation" id="explanation-33">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>抗體結構與類別轉換：</strong><br><br>
+                    • <strong>抗體類別：</strong>由重鏈固定區決定（μ、δ、γ、α、ε）<br>
+                    • <strong>固定區（C區）：</strong>重鏈和輕鏈都有，決定效應功能<br>
+                    • <strong>變異區（V區）：</strong>重鏈和輕鏈都有，決定抗原特異性<br>
+                    • <strong>類別轉換機制：</strong><br>
+                    　- 只改變重鏈固定區（CH1→CH2、CH3等）<br>
+                    　- 變異區（VH和VL）保持完全不變<br>
+                    　- 因此抗原結合特異性不變<br>
+                    • <strong>功能改變：</strong>只有效應功能改變（補體活化、Fc受體結合等）<br><br>
+                    <strong>正確答案：</strong>類別轉換後抗原結合區不會改變
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 34 -->
+        <div class="slide">
+            <div class="question-number">第 34 題</div>
+            <div class="question-text">下列何種理論最能說明抗體多樣性（antibody diversity）？</div>
+            <div class="options">
+                <div class="option">(A) germ-line theory</div>
+                <div class="option">(B) germ-line configuration theory</div>
+                <div class="option correct">(C) somatic hypermutation theory</div>
+                <div class="option">(D) clonal selection theory</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(34)">查看詳解</button>
+            <div class="explanation" id="explanation-34">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>抗體多樣性產生機制：</strong><br><br>
+                    • <strong>V(D)J重組：</strong>基因片段重組產生初始多樣性（約10^11種）<br>
+                    • <strong>體細胞超突變：</strong><br>
+                    　- 在生發中心發生<br>
+                    　- AID酶介導的點突變<br>
+                    　- 產生更高親和力抗體<br>
+                    　- 是抗體親和力成熟的關鍵機制<br>
+                    • <strong>其他機制：</strong><br>
+                    　- 類別轉換：改變效應功能，不增加多樣性<br>
+                    　- 基因轉換：某些物種的多樣性機制<br>
+                    • <strong>理論發展：</strong>從早期的胚胎基因理論發展到現代的體細胞超突變理論<br><br>
+                    <strong>正確答案：</strong>somatic hypermutation theory
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 35 -->
+        <div class="slide">
+            <div class="question-number">第 35 題</div>
+            <div class="question-text">下列何者可表示HLA的多樣性（polymorphism）？</div>
+            <div class="options">
+                <div class="option correct">(A) HLA-A2和HLA-A11</div>
+                <div class="option">(B) HLA-A2和HLA-B11</div>
+                <div class="option">(C) HLA-A2和HLA-DR11</div>
+                <div class="option">(D) HLA-DR2和HLA-DQ2</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(35)">查看詳解</button>
+            <div class="explanation" id="explanation-35">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>HLA多態性的定義：</strong><br><br>
+                    • <strong>多態性概念：</strong>同一基因座上不同等位基因的存在<br>
+                    • <strong>正確範例：</strong><br>
+                    　- <strong>HLA-A2和HLA-A11：</strong>都是HLA-A基因座的不同等位基因<br>
+                    　- 表示HLA-A基因座的多態性<br>
+                    • <strong>錯誤範例：</strong><br>
+                    　- HLA-A2和HLA-B11：不同基因座，不是多態性<br>
+                    　- HLA-A2和HLA-DR11：不同基因座<br>
+                    　- HLA-DR2和HLA-DQ2：不同基因座<br>
+                    • <strong>臨床意義：</strong><br>
+                    　- HLA多態性是器官移植匹配的重要考量<br>
+                    　- 影響疾病易感性<br><br>
+                    <strong>正確答案：</strong>HLA-A2和HLA-A11
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 36 -->
+        <div class="slide">
+            <div class="question-number">第 36 題</div>
+            <div class="question-text">有關多發性硬化症（multiple sclerosis）的敘述，下列何者正確？</div>
+            <div class="options">
+                <div class="option correct">(A) 由於免疫系統異常，攻擊自身神經髓鞘，造成中樞神經系統衰退</div>
+                <div class="option">(B) 疾病進展主要以血清電泳，分析血清中的多株抗體</div>
+                <div class="option">(C) 以Rifampin抗生素治療</div>
+                <div class="option">(D) 常被檢測出核仁型抗核抗體（anti-nuclear antibody, ANA）</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(36)">查看詳解</button>
+            <div class="explanation" id="explanation-36">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>多發性硬化症特徵：</strong><br><br>
+                    • <strong>病理機制：</strong><br>
+                    　- 自體免疫疾病，T細胞攻擊髓鞘蛋白<br>
+                    　- 主要影響中樞神經系統（腦部和脊髓）<br>
+                    　- 造成脫髓鞘和軸突損傷<br>
+                    • <strong>診斷方法：</strong><br>
+                    　- MRI顯示多發性白質病灶<br>
+                    　- 腦脊液檢查：寡克隆帶（oligoclonal bands）<br>
+                    　- 不是血清電泳分析<br>
+                    • <strong>治療方式：</strong><br>
+                    　- 免疫調節劑：interferon-β、fingolimod<br>
+                    　- 不使用抗生素治療<br>
+                    • <strong>實驗室檢查：</strong>通常ANA陰性<br><br>
+                    <strong>正確答案：</strong>免疫系統異常攻擊神經髓鞘
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 37 -->
+        <div class="slide">
+            <div class="question-number">第 37 題</div>
+            <div class="question-text">Toll-like receptors不能辨識下列何種分子？</div>
+            <div class="options">
+                <div class="option">(A) flagellin</div>
+                <div class="option correct">(B) mannose</div>
+                <div class="option">(C) dsRNA</div>
+                <div class="option">(D) ssRNA</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(37)">查看詳解</button>
+            <div class="explanation" id="explanation-37">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>TLR識別的PAMP分子：</strong><br><br>
+                    • <strong>TLR能識別的分子：</strong><br>
+                    　- <strong>TLR5：</strong>識別flagellin（細菌鞭毛蛋白）<br>
+                    　- <strong>TLR3：</strong>識別dsRNA（雙股RNA）<br>
+                    　- <strong>TLR7/8：</strong>識別ssRNA（單股RNA）<br>
+                    • <strong>TLR不識別的分子：</strong><br>
+                    　- <strong>Mannose：</strong>被mannose受體（MR）識別，不是TLR配體<br>
+                    　- Mannose受體屬於C型凝集素受體家族<br>
+                    • <strong>先天免疫：</strong><br>
+                    　- TLR是先天免疫的重要受體<br>
+                    　- 識別病原體相關分子模式（PAMP）<br>
+                    　- 啟動先天免疫反應<br><br>
+                    <strong>正確答案：</strong>mannose
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 38 -->
+        <div class="slide">
+            <div class="question-number">第 38 題</div>
+            <div class="question-text">下列有關CAR-T（chimeric antigen receptors-T）細胞的敘述何者錯誤？</div>
+            <div class="options">
+                <div class="option">(A) 具有辨識腫瘤抗原的抗體與T細胞受體之融合蛋白</div>
+                <div class="option">(B) CAR-T細胞活化可不需抗原呈獻細胞參與</div>
+                <div class="option">(C) 該技術已有FDA核准上市</div>
+                <div class="option correct">(D) CAR-T治療不會引起發炎反應</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(38)">查看詳解</button>
+            <div class="explanation" id="explanation-38">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>CAR-T療法特徵與副作用：</strong><br><br>
+                    • <strong>CAR結構：</strong><br>
+                    　- 胞外：單鏈抗體（scFv）識別腫瘤抗原<br>
+                    　- 胞內：CD3ζ鏈和共刺激分子<br>
+                    　- 結合抗體特異性和T細胞殺傷功能<br>
+                    • <strong>作用特點：</strong><br>
+                    　- 不需要MHC呈獻，直接識別腫瘤抗原<br>
+                    　- 不需要抗原呈獻細胞參與<br>
+                    • <strong>臨床狀況：</strong><br>
+                    　- 已有多種CAR-T產品獲FDA核准<br>
+                    　- 主要用於血液腫瘤治療<br>
+                    • <strong>嚴重副作用：</strong><br>
+                    　- <strong>細胞因子釋放症候群（CRS）</strong><br>
+                    　- 神經毒性<br>
+                    　- 可能危及生命，需密切監控<br><br>
+                    <strong>正確答案：</strong>CAR-T治療會引起嚴重發炎反應
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 39 -->
+        <div class="slide">
+            <div class="question-number">第 39 題</div>
+            <div class="question-text">下列敘述何者正確？</div>
+            <div class="options">
+                <div class="option correct">(A) 慢性肉芽腫（chronic granulomatous disease）是負責氧化路徑的細胞色素（cyt b558）及吞噬小體氧化酶（phox）缺陷所致</div>
+                <div class="option">(B) X連鎖型無伽瑪球蛋白血症（X-linked agammaglobulinemia）合併有T及B細胞缺陷的疾病</div>
+                <div class="option">(C) 嚴重合併性免疫缺陏（severe combined immunodeficiency）小鼠缺乏NK細胞</div>
+                <div class="option">(D) 注射IL-2可以用來治療無伽瑪球蛋白血症病人</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(39)">查看詳解</button>
+            <div class="explanation" id="explanation-39">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>原發性免疫缺陷病分析：</strong><br><br>
+                    • <strong>慢性肉芽腫病（CGD）：</strong><br>
+                    　- NADPH氧化酶系統缺陷<br>
+                    　- 細胞色素b558和phox蛋白異常<br>
+                    　- 無法產生超氧化物和其他ROS<br>
+                    　- 反覆感染過氧化氫酶陽性細菌和真菌<br>
+                    • <strong>其他疾病分析：</strong><br>
+                    　- <strong>XLA：</strong>主要影響B細胞，T細胞功能正常<br>
+                    　- <strong>SCID：</strong>T和B細胞缺陷，但NK細胞可能正常或異常（視亞型而定）<br>
+                    　- <strong>無伽瑪球蛋白血症：</strong>需要免疫球蛋白替代治療，不是IL-2<br><br>
+                    <strong>正確答案：</strong>慢性肉芽腫病是氧化酶系統缺陷
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 40 -->
+        <div class="slide">
+            <div class="question-number">第 40 題</div>
+            <div class="question-text">以間接免疫螢光染色法分析抗核抗體，呈現均勻型（homogeneous）時，其抗核抗體可能為下列何者？ ①anti-dsDNA ②anti-ssDNA ③anti-DNP ④anti-histone ⑤anti-RNP</div>
+            <div class="options">
+                <div class="option">(A) 僅①②</div>
+                <div class="option">(B) 僅③④⑤</div>
+                <div class="option correct">(C) 僅①②③④</div>
+                <div class="option">(D) ①②③④⑤</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(40)">查看詳解</button>
+            <div class="explanation" id="explanation-40">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>ANA螢光模式分析：</strong><br><br>
+                    • <strong>均勻型螢光模式：</strong>整個細胞核均勻染色<br>
+                    • <strong>可引起均勻型的抗體：</strong><br>
+                    　- <strong>Anti-dsDNA：</strong>與染色質結合，呈均勻型<br>
+                    　- <strong>Anti-ssDNA：</strong>也可呈均勻型分布<br>
+                    　- <strong>Anti-DNP：</strong>如為核內蛋白，可呈均勻型<br>
+                    　- <strong>Anti-histone：</strong>組蛋白抗體，典型均勻型<br>
+                    • <strong>不呈均勻型的抗體：</strong><br>
+                    　- <strong>Anti-RNP：</strong>通常呈斑點型（speckled），不是均勻型<br>
+                    　- 因為RNP在核內呈不均勻分布<br>
+                    • <strong>臨床意義：</strong>均勻型ANA常見於SLE和藥物性狼瘡<br><br>
+                    <strong>正確答案：</strong>僅①②③④
+                </div>
+            </div>
+        </div>
+<!-- Question 41 -->
+        <div class="slide">
+            <div class="question-number">第 41 題</div>
+            <div class="question-text">有關HBe抗原的敘述，下列何者正確？</div>
+            <div class="options">
+                <div class="option">(A) 源自於HBV Gene S</div>
+                <div class="option">(B) 僅存在於病毒顆粒內</div>
+                <div class="option">(C) HBe抗體（Anti-HBe）陽性為黃疸症狀的重要指標</div>
+                <div class="option correct">(D) HBe抗原陽性代表活動性B型肝炎</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(41)">查看詳解</button>
+            <div class="explanation" id="explanation-41">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>HBe抗原的特徵與臨床意義：</strong><br><br>
+                    • <strong>基因來源：</strong>來自HBV precore/core基因產物，不是S基因<br>
+                    • <strong>分布位置：</strong>血液中可檢測到，不僅限於病毒顆粒內<br>
+                    • <strong>臨床意義：</strong><br>
+                    　- <strong>HBeAg陽性：</strong>表示病毒複製活躍，傳染性高<br>
+                    　- 血中病毒DNA濃度通常很高<br>
+                    　- 肝臟發炎程度較重<br>
+                    • <strong>血清轉換：</strong><br>
+                    　- HBeAg消失、anti-HBe出現<br>
+                    　- 表示病毒複製下降，預後較好<br>
+                    • <strong>治療指標：</strong>不是黃疸的指標，而是病毒活動性的重要標記<br><br>
+                    <strong>正確答案：</strong>HBe抗原陽性代表活動性B型肝炎
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 42 -->
+        <div class="slide">
+            <div class="question-number">第 42 題</div>
+            <div class="question-text">免疫螢光染色時，常使用下列何者作細胞的背景染色？</div>
+            <div class="options">
+                <div class="option correct">(A) Evans blue</div>
+                <div class="option">(B) fluorescein</div>
+                <div class="option">(C) rhodamine</div>
+                <div class="option">(D) acridine orange</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(42)">查看詳解</button>
+            <div class="explanation" id="explanation-42">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>免疫螢光染色中的背景染色：</strong><br><br>
+                    • <strong>Evans blue：</strong><br>
+                    　- 紅色染料，常用作背景對比染色<br>
+                    　- 提供細胞輪廓的對比<br>
+                    　- 幫助觀察細胞形態和定位螢光信號<br>
+                    • <strong>其他螢光染料：</strong><br>
+                    　- <strong>Fluorescein（FITC）：</strong>綠色螢光，用於標記抗體<br>
+                    　- <strong>Rhodamine：</strong>紅色螢光，用於標記抗體<br>
+                    　- <strong>Acridine orange：</strong>DNA/RNA核酸染色，不用作背景<br>
+                    • <strong>技術原理：</strong><br>
+                    　- 背景染色有助於觀察細胞形態<br>
+                    　- 提供螢光信號的定位參考<br><br>
+                    <strong>正確答案：</strong>Evans blue
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 43 -->
+        <div class="slide">
+            <div class="question-number">第 43 題</div>
+            <div class="question-text">有關嗜異性抗體（Heterophile antibody）檢測方法之敘述，下列何者正確？</div>
+            <div class="options">
+                <div class="option">(A) Davidsohn differential test利用馬的紅血球進行偵測</div>
+                <div class="option correct">(B) Paul-Bunnell screening test利用綿羊紅血球進行偵測</div>
+                <div class="option">(C) MonoSlide test利用牛紅血球、天竺鼠腎臟細胞及綿羊紅血球偵測各種不同來源之嗜異性抗體</div>
+                <div class="option">(D) Davidsohn differential test之檢測原理為免疫沉澱法</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(43)">查看詳解</button>
+            <div class="explanation" id="explanation-43">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>嗜異性抗體檢測方法比較：</strong><br><br>
+                    • <strong>Paul-Bunnell screening test：</strong><br>
+                    　- 使用<strong>綿羊紅血球</strong>的凝集試驗<br>
+                    　- 篩檢嗜異性抗體的初步方法<br>
+                    • <strong>Davidsohn differential test：</strong><br>
+                    　- 用牛腎和天竺鼠腎吸收後測定<br>
+                    　- 不是使用馬紅血球<br>
+                    　- 檢測原理是凝集反應，不是免疫沉澱<br>
+                    • <strong>MonoSlide test：</strong><br>
+                    　- 快速血片法，不使用多種紅血球<br>
+                    • <strong>臨床應用：</strong><br>
+                    　- 主要診斷EBV引起的傳染性單核球增多症<br>
+                    　- 現代多用EBV特異性抗體檢測<br><br>
+                    <strong>正確答案：</strong>Paul-Bunnell test利用綿羊紅血球
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 44 -->
+        <div class="slide">
+            <div class="question-number">第 44 題</div>
+            <div class="question-text">腸病毒與鼻病毒同屬小RNA病毒科，下列敘述何者錯誤？</div>
+            <div class="options">
+                <div class="option">(A) 腸病毒耐酸（pH 3.0），鼻病毒不耐酸</div>
+                <div class="option">(B) 兩者皆對ether處理有抗性（resistance）</div>
+                <div class="option">(C) 兩者皆是positive-sense, single-stranded RNA virus</div>
+                <div class="option correct">(D) 兩者病毒顆粒密度相同</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(44)">查看詳解</button>
+            <div class="explanation" id="explanation-44">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>腸病毒vs鼻病毒特性比較：</strong><br><br>
+                    • <strong>酸穩定性：</strong><br>
+                    　- <strong>腸病毒：</strong>耐酸（pH 3.0），可通過胃酸<br>
+                    　- <strong>鼻病毒：</strong>不耐酸，在酸性環境下失活<br>
+                    • <strong>乙醚抗性：</strong>兩者都無套膜，對乙醚有抗性<br>
+                    • <strong>基因組：</strong>都是正股單鏈RNA病毒（+ssRNA）<br>
+                    • <strong>密度差異：</strong><br>
+                    　- <strong>腸病毒：</strong>密度1.34 g/ml<br>
+                    　- <strong>鼻病毒：</strong>密度1.40 g/ml<br>
+                    　- 這種密度差異可用於病毒分離和純化<br>
+                    • <strong>生物學意義：</strong>密度差異反映蛋白質組成的不同<br><br>
+                    <strong>正確答案：</strong>兩者病毒顆粒密度不相同
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 45 -->
+        <div class="slide">
+            <div class="question-number">第 45 題</div>
+            <div class="question-text">下列何種病毒不具有fusion（F）蛋白？</div>
+            <div class="options">
+                <div class="option">(A) parainfluenza type 2</div>
+                <div class="option">(B) mumps virus</div>
+                <div class="option">(C) respiratory syncytial virus</div>
+                <div class="option correct">(D) influenza B virus</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(45)">查看詳解</button>
+            <div class="explanation" id="explanation-45">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>病毒融合蛋白的分布：</strong><br><br>
+                    • <strong>具有F蛋白的病毒（副黏病毒科）：</strong><br>
+                    　- <strong>副流感病毒：</strong>具有F蛋白，負責細胞融合<br>
+                    　- <strong>腮腺炎病毒：</strong>具有F蛋白<br>
+                    　- <strong>RSV：</strong>具有F蛋白，重要的疫苗標的<br>
+                    • <strong>不具F蛋白的病毒：</strong><br>
+                    　- <strong>流感病毒：</strong>具有血凝素（HA），不是F蛋白<br>
+                    　- HA負責受體結合和膜融合功能<br>
+                    • <strong>病毒分類：</strong><br>
+                    　- F蛋白是副黏病毒科（Paramyxoviridae）的特徵<br>
+                    　- 流感病毒屬正黏病毒科（Orthomyxoviridae）<br><br>
+                    <strong>正確答案：</strong>influenza B virus
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 46 -->
+        <div class="slide">
+            <div class="question-number">第 46 題</div>
+            <div class="question-text">下列何種檢體較適合偵測人類巨細胞病毒（human cytomegalovirus）？</div>
+            <div class="options">
+                <div class="option correct">(A) 血液（blood）</div>
+                <div class="option">(B) 腦脊髓液（cerebrospinal fluid）</div>
+                <div class="option">(C) 皮膚（skin）</div>
+                <div class="option">(D) 關節液（synovial fluid）</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(46)">查看詳解</button>
+            <div class="explanation" id="explanation-46">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>CMV檢測的最佳檢體選擇：</strong><br><br>
+                    • <strong>血液檢體：</strong><br>
+                    　- <strong>CMV viremia：</strong>最常用的檢測方法<br>
+                    　- 可檢測病毒DNA、抗原或培養<br>
+                    　- 反映全身性感染狀態<br>
+                    　- 監測免疫抑制患者的重要指標<br>
+                    • <strong>其他檢體：</strong><br>
+                    　- <strong>尿液：</strong>也常用，特別是新生兒CMV感染<br>
+                    　- <strong>腦脊髓液：</strong>僅在CMV腦炎時使用<br>
+                    　- <strong>皮膚、關節液：</strong>不常用於CMV檢測<br>
+                    • <strong>臨床意義：</strong><br>
+                    　- CMV是全身性感染<br>
+                    　- 血液檢測最實用且敏感<br><br>
+                    <strong>正確答案：</strong>血液（blood）
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 47 -->
+        <div class="slide">
+            <div class="question-number">第 47 題</div>
+            <div class="question-text">關於出血性登革熱（dengue hemorrhagic fever, DHF）的敘述，何者錯誤？</div>
+            <div class="options">
+                <div class="option">(A) 登革病毒感染促使血管通透性增加</div>
+                <div class="option">(B) 臨床常見的症狀為血小板減少與出現瘀斑</div>
+                <div class="option">(C) 初次感染的患者仍有發生DHF的可能</div>
+                <div class="option correct">(D) 參與DHF的細胞不具有FcR表現</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(47)">查看詳解</button>
+            <div class="explanation" id="explanation-47">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>登革出血熱的發病機制：</strong><br><br>
+                    • <strong>病理機制：</strong><br>
+                    　- <strong>血管通透性增加：</strong>補體活化、細胞因子釋放<br>
+                    　- <strong>血小板減少：</strong>骨髓抑制、血小板破壞<br>
+                    　- 出現出血症狀和瘀斑<br>
+                    • <strong>感染模式：</strong><br>
+                    　- 初次感染也可能發生DHF<br>
+                    　- 但二次不同血清型感染風險更高<br>
+                    • <strong>抗體依賴性增強感染（ADE）：</strong><br>
+                    　- <strong>FcR陽性細胞：</strong>單核細胞、巨噬細胞表現FcR<br>
+                    　- 預存抗體促進病毒進入細胞<br>
+                    　- 是DHF發生的重要機制<br>
+                    • <strong>錯誤選項：</strong>參與DHF的細胞具有FcR表現<br><br>
+                    <strong>正確答案：</strong>參與DHF的細胞具有FcR表現
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 48 -->
+        <div class="slide">
+            <div class="question-number">第 48 題</div>
+            <div class="question-text">臨床上懷疑Epstein-Barr virus（EBV）感染所引起的infectious mononucleosis，下列那些檢測結果可幫助確認？</div>
+            <div class="options">
+                <div class="option">(A) EA IgG（-）/ EBNA IgG（+）/ VCA IgG（+）</div>
+                <div class="option">(B) EA IgG（-）/ EBNA IgG（+）/ VCA IgG（-）</div>
+                <div class="option">(C) EA IgG（-）/ EBNA IgG（-）/ VCA IgG（+）</div>
+                <div class="option correct">(D) EA IgG（+）/ EBNA IgG（-）/ VCA IgG（+）</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(48)">查看詳解</button>
+            <div class="explanation" id="explanation-48">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>EBV抗體模式與感染階段：</strong><br><br>
+                    • <strong>急性感染模式（傳染性單核球增多症）：</strong><br>
+                    　- <strong>EA IgG陽性：</strong>早期抗原抗體，急性期出現<br>
+                    　- <strong>EBNA IgG陰性：</strong>核抗原抗體，感染數月後才出現<br>
+                    　- <strong>VCA IgG陽性：</strong>病毒殼抗原抗體<br>
+                    　- 通常還會有VCA IgM陽性<br>
+                    • <strong>其他抗體模式：</strong><br>
+                    　- <strong>既往感染：</strong>EA IgG陰性，EBNA IgG陽性，VCA IgG陽性<br>
+                    　- <strong>潛伏感染：</strong>EBNA IgG陽性是終身標記<br>
+                    • <strong>臨床應用：</strong>抗體模式可區分急性、既往或重新活化感染<br><br>
+                    <strong>正確答案：</strong>EA IgG（+）/ EBNA IgG（-）/ VCA IgG（+）
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 49 -->
+        <div class="slide">
+            <div class="question-number">第 49 題</div>
+            <div class="question-text">關於B型流感病毒的描述，下列何者錯誤？</div>
+            <div class="options">
+                <div class="option">(A) 與A型流感同屬於正黏液病毒科</div>
+                <div class="option">(B) 可以Madin-Darby canine kidney（MDCK）細胞培養</div>
+                <div class="option correct">(C) 與C型流感病毒類似，都帶有7個片段RNA基因組</div>
+                <div class="option">(D) amantadine無法抑制B型流感病毒</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(49)">查看詳解</button>
+            <div class="explanation" id="explanation-49">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>流感病毒分型與特徵：</strong><br><br>
+                    • <strong>流感病毒分類：</strong><br>
+                    　- A、B型流感都屬正黏病毒科（Orthomyxoviridae）<br>
+                    　- 都可用MDCK細胞培養<br>
+                    • <strong>基因組結構：</strong><br>
+                    　- <strong>A、B型流感：</strong>都有8個RNA片段<br>
+                    　- <strong>C型流感：</strong>有7個RNA片段<br>
+                    　- 這是重要的區別特徵<br>
+                    • <strong>藥物敏感性：</strong><br>
+                    　- <strong>Amantadine：</strong>只對A型流感有效<br>
+                    　- 對B型流感無效<br>
+                    　- 機制是阻斷M2離子通道<br>
+                    • <strong>臨床特徵：</strong>B型流感不如A型容易發生抗原變異<br><br>
+                    <strong>正確答案：</strong>B型流感有8個RNA片段，不是7個
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 50 -->
+        <div class="slide">
+            <div class="question-number">第 50 題</div>
+            <div class="question-text">下列那兩項試驗呈陽性代表慢性B型肝炎患者具高度傳染性？</div>
+            <div class="options">
+                <div class="option correct">(A) HBsAg, HBeAg</div>
+                <div class="option">(B) Anti-HBs, Anti-HBe</div>
+                <div class="option">(C) Anti-HBc, Anti-HBc IgM</div>
+                <div class="option">(D) HBsAg, Anti-HBs</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(50)">查看詳解</button>
+            <div class="explanation" id="explanation-50">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>B型肝炎血清標記與傳染性：</strong><br><br>
+                    • <strong>高傳染性指標：</strong><br>
+                    　- <strong>HBsAg陽性：</strong>表示感染B型肝炎病毒<br>
+                    　- <strong>HBeAg陽性：</strong>表示病毒複製活躍，傳染性極高<br>
+                    　- 血中病毒DNA濃度通常>10^5 copies/ml<br>
+                    • <strong>其他血清標記意義：</strong><br>
+                    　- <strong>Anti-HBs：</strong>保護性抗體，表示免疫或康復<br>
+                    　- <strong>Anti-HBe：</strong>病毒複製下降的指標<br>
+                    　- <strong>Anti-HBc IgM：</strong>急性感染指標<br>
+                    • <strong>臨床應用：</strong><br>
+                    　- HBsAg和HBeAg雙陽性是高傳染性的重要指標<br>
+                    　- 需要特別的感染控制措施<br><br>
+                    <strong>正確答案：</strong>HBsAg, HBeAg
+                </div>
+            </div>
+        </div>
+
+<!-- Question 51 -->
+        <div class="slide">
+            <div class="question-number">第 51 題</div>
+            <div class="question-text">流感病毒檢測方法，下列何者操作之完成時間最短？</div>
+            <div class="options">
+                <div class="option">(A) 病毒培養</div>
+                <div class="option">(B) 血球凝集抑制法</div>
+                <div class="option correct">(C) 抗原快速檢測法</div>
+                <div class="option">(D) multiplex real-time PCR</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(51)">查看詳解</button>
+            <div class="explanation" id="explanation-51">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>流感檢測方法時間比較：</strong><br><br>
+                    • <strong>抗原快速檢測法：</strong><br>
+                    　- 完成時間：<strong>15-30分鐘</strong><br>
+                    　- 床邊檢測（point-of-care testing）<br>
+                    　- 敏感度約50-70%，特異性約90-95%<br>
+                    • <strong>其他方法時間：</strong><br>
+                    　- <strong>病毒培養：</strong>3-10天，最準確但最慢<br>
+                    　- <strong>血球凝集抑制法：</strong>需要配對血清，數小時到數天<br>
+                    　- <strong>RT-PCR：</strong>2-4小時，敏感性最高<br>
+                    • <strong>臨床應用：</strong><br>
+                    　- 快速抗原檢測適合門診快速診斷<br>
+                    　- 可立即決定治療方案<br><br>
+                    <strong>正確答案：</strong>抗原快速檢測法
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 52 -->
+        <div class="slide">
+            <div class="question-number">第 52 題</div>
+            <div class="question-text">有關干擾素（interferon）之敘述，下列何者錯誤？</div>
+            <div class="options">
+                <div class="option">(A) Ampligen及Poly rI:rC可以刺激interferon的產生</div>
+                <div class="option">(B) interferon-alpha及interferon-beta可以抑制某些病毒蛋白質的合成</div>
+                <div class="option correct">(C) interferon-alpha與Pleconaril常併用於治療C型肝炎</div>
+                <div class="option">(D) interferon-alpha可用於治療Papillomavirus</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(52)">查看詳解</button>
+            <div class="explanation" id="explanation-52">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>干擾素的特性與治療應用：</strong><br><br>
+                    • <strong>干擾素誘導劑：</strong><br>
+                    　- <strong>Ampligen、Poly rI:rC：</strong>可刺激干擾素產生<br>
+                    　- 模擬病毒dsRNA啟動先天免疫<br>
+                    • <strong>抗病毒機制：</strong><br>
+                    　- IFN-α、IFN-β抑制病毒蛋白合成<br>
+                    　- 活化2'-5'寡聚腺苷酸合成酶系統<br>
+                    • <strong>治療應用：</strong><br>
+                    　- <strong>C型肝炎：</strong>IFN-α與ribavirin併用，不是Pleconaril<br>
+                    　- <strong>Pleconaril：</strong>抗腸病毒藥物，不用於C肝<br>
+                    　- <strong>HPV：</strong>IFN-α可用於治療疣和某些HPV感染<br>
+                    • <strong>現代治療：</strong>C肝現已改用DAA藥物<br><br>
+                    <strong>正確答案：</strong>IFN-α不與Pleconaril併用治療C肝
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 53 -->
+        <div class="slide">
+            <div class="question-number">第 53 題</div>
+            <div class="question-text">下列何者是用來表示以細胞量測病毒感染力的單位？</div>
+            <div class="options">
+                <div class="option correct">(A) PFU/mL</div>
+                <div class="option">(B) LD<sub>50</sub></div>
+                <div class="option">(C) ID<sub>50</sub></div>
+                <div class="option">(D) colony/mL</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(53)">查看詳解</button>
+            <div class="explanation" id="explanation-53">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>病毒感染力測定單位：</strong><br><br>
+                    • <strong>PFU/mL（Plaque-Forming Units）：</strong><br>
+                    　- <strong>空斑形成單位</strong>，細胞培養感染力標準單位<br>
+                    　- 每個PFU代表一個能感染細胞並形成空斑的病毒顆粒<br>
+                    　- 最常用的病毒定量方法<br>
+                    • <strong>其他單位比較：</strong><br>
+                    　- <strong>LD50：</strong>半數致死劑量，動物毒性測定<br>
+                    　- <strong>ID50：</strong>半數感染劑量，動物感染力測定<br>
+                    　- <strong>Colony/mL：</strong>細菌計數單位，不適用於病毒<br>
+                    • <strong>技術原理：</strong><br>
+                    　- 病毒在細胞單層上形成肉眼可見的空斑<br>
+                    　- 每個空斑來自單一感染性病毒顆粒<br><br>
+                    <strong>正確答案：</strong>PFU/mL
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 54 -->
+        <div class="slide">
+            <div class="question-number">第 54 題</div>
+            <div class="question-text">有一株流感病毒命名為A/Hong Kong/56/68（H3N2）-like virus，下列關於這個病毒的敘述何者錯誤？</div>
+            <div class="options">
+                <div class="option">(A) 是A型流感病毒</div>
+                <div class="option correct">(B) 是1956年分離的</div>
+                <div class="option">(C) 是由人類分離出來的</div>
+                <div class="option">(D) 是在Hong Kong分離出，而且是H3N2亞型</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(54)">查看詳解</button>
+            <div class="explanation" id="explanation-54">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>流感病毒命名法規則：</strong><br><br>
+                    • <strong>命名格式：</strong>型別/分離地點/株系編號/分離年份（亞型）<br>
+                    • <strong>A/Hong Kong/56/68（H3N2）分析：</strong><br>
+                    　- <strong>A：</strong>A型流感病毒 ✓<br>
+                    　- <strong>Hong Kong：</strong>分離地點 ✓<br>
+                    　- <strong>56：</strong>該年度的株系編號，不是年份<br>
+                    　- <strong>68：</strong>分離年份是1968年，不是1956年 ✗<br>
+                    　- <strong>H3N2：</strong>亞型，血凝素和神經胺酸酶亞型 ✓<br>
+                    • <strong>宿主來源：</strong><br>
+                    　- 未標明宿主表示來自人類<br>
+                    　- 動物來源會標明如A/Swine/Iowa/15/30<br>
+                    • <strong>歷史意義：</strong>1968年Hong Kong流感大流行株<br><br>
+                    <strong>正確答案：</strong>分離年份是1968年，不是1956年
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 55 -->
+        <div class="slide">
+            <div class="question-number">第 55 題</div>
+            <div class="question-text">下列有關輪狀病毒（rotavirus）之敘述，何者正確？</div>
+            <div class="options">
+                <div class="option">(A) 為單股RNA病毒</div>
+                <div class="option">(B) 含套膜（envelope）</div>
+                <div class="option correct">(C) 可產生混種病毒（reassortant virus）</div>
+                <div class="option">(D) RotaTaq疫苗為死病毒疫苗</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(55)">查看詳解</button>
+            <div class="explanation" id="explanation-55">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>輪狀病毒特徵分析：</strong><br><br>
+                    • <strong>基因組結構：</strong><br>
+                    　- <strong>雙股RNA病毒</strong>，不是單股RNA<br>
+                    　- 具有11個RNA片段<br>
+                    　- 每個片段編碼不同蛋白質<br>
+                    • <strong>病毒結構：</strong><br>
+                    　- <strong>無套膜</strong>，具有雙殼層結構<br>
+                    　- 外層、內層蛋白殼和核心<br>
+                    • <strong>基因重組特性：</strong><br>
+                    　- <strong>可產生重組病毒</strong>（reassortant virus）<br>
+                    　- 11個RNA片段可發生重組<br>
+                    　- 是病毒多樣性的重要來源<br>
+                    • <strong>疫苗類型：</strong><br>
+                    　- <strong>RotaTaq：</strong>活毒疫苗，不是死毒疫苗<br>
+                    　- 含有人-牛重組病毒株<br><br>
+                    <strong>正確答案：</strong>可產生混種病毒（reassortant virus）
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 56 -->
+        <div class="slide">
+            <div class="question-number">第 56 題</div>
+            <div class="question-text">有關流感病毒感染細胞過程的敘述，下列何者最不適當？</div>
+            <div class="options">
+                <div class="option correct">(A) A型流感病毒顆粒上的NA為主要結合細胞受體的病毒蛋白質</div>
+                <div class="option">(B) 人類季節性A型流感H3N2亞型受體為alpha 2,6鏈結之sialic acid</div>
+                <div class="option">(C) 病毒與受體結合後，可經由細胞內吞作用（endocytosis）使病毒顆粒進入細胞</div>
+                <div class="option">(D) 病毒之基因組會被送入細胞核進行RNA複製及mRNA轉錄</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(56)">查看詳解</button>
+            <div class="explanation" id="explanation-56">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>流感病毒感染機制詳解：</strong><br><br>
+                    • <strong>受體結合蛋白：</strong><br>
+                    　- <strong>HA（血凝素）：</strong>主要的受體結合蛋白<br>
+                    　- <strong>NA（神經胺酸酶）：</strong>切斷唾液酸，幫助病毒釋放，不負責受體結合<br>
+                    • <strong>受體特異性：</strong><br>
+                    　- <strong>人流感病毒：</strong>結合α2,6-唾液酸受體<br>
+                    　- <strong>禽流感病毒：</strong>結合α2,3-唾液酸受體<br>
+                    • <strong>感染過程：</strong><br>
+                    　- <strong>胞飲作用：</strong>病毒通過受體介導的胞飲進入<br>
+                    　- <strong>核內複製：</strong>流感病毒RNA聚合酶在細胞核內進行複製和轉錄<br>
+                    • <strong>錯誤選項：</strong>NA不是受體結合蛋白<br><br>
+                    <strong>正確答案：</strong>HA才是主要受體結合蛋白，不是NA
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 57 -->
+        <div class="slide">
+            <div class="question-number">第 57 題</div>
+            <div class="question-text">農曆春節前，某老人長期照護中心發生上吐下瀉的急性腸胃炎群聚感染，應該最優先考慮下列那一種病毒感染？</div>
+            <div class="options">
+                <div class="option">(A) 輪狀病毒（Rotavirus）</div>
+                <div class="option">(B) 星狀病毒（Astrovirus）</div>
+                <div class="option correct">(C) 諾羅病毒（Norovirus）</div>
+                <div class="option">(D) 腸道型腺病毒（Enteric adenovirus）</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(57)">查看詳解</button>
+            <div class="explanation" id="explanation-57">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>病毒性腸胃炎群聚感染分析：</strong><br><br>
+                    • <strong>諾羅病毒特徵：</strong><br>
+                    　- <strong>最常見</strong>的急性腸胃炎群聚感染病原<br>
+                    　- <strong>冬季多發</strong>，符合春節前時間點<br>
+                    　- <strong>高傳播力：</strong>接觸、飛沫、食物傳播<br>
+                    　- <strong>機構感染：</strong>養護機構、學校常見爆發<br>
+                    • <strong>其他病毒比較：</strong><br>
+                    　- <strong>輪狀病毒：</strong>主要感染嬰幼兒，成人少見<br>
+                    　- <strong>星狀病毒：</strong>症狀較輕，較少群聚<br>
+                    　- <strong>腺病毒：</strong>全年發生，較少大規模群聚<br>
+                    • <strong>流行病學：</strong><br>
+                    　- 諾羅病毒是成人急性腸胃炎群聚的首要考慮<br>
+                    　- 低感染劑量（<100個病毒顆粒）<br><br>
+                    <strong>正確答案：</strong>諾羅病毒（Norovirus）
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 58 -->
+        <div class="slide">
+            <div class="question-number">第 58 題</div>
+            <div class="question-text">有關治療C型肝炎病毒（Hepatitis C virus, HCV）的藥物Sofosbuvir之敘述，下列何者錯誤？</div>
+            <div class="options">
+                <div class="option correct">(A) 是蛋白酶抑制劑（protease inhibitor）</div>
+                <div class="option">(B) 是一種direct acting antiviral（DAA）藥物</div>
+                <div class="option">(C) HCV的NS5B基因突變可能會導致抗藥性</div>
+                <div class="option">(D) 可利用RT-PCR偵測血液中病毒量來確認治療效果</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(58)">查看詳解</button>
+            <div class="explanation" id="explanation-58">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>Sofosbuvir的藥理特性：</strong><br><br>
+                    • <strong>藥物分類：</strong><br>
+                    　- <strong>NS5B聚合酶抑制劑</strong>，不是蛋白酶抑制劑<br>
+                    　- 核苷類似物，抑制HCV RNA聚合酶<br>
+                    　- 屬於DAA（直接抗病毒藥物）<br>
+                    • <strong>作用機制：</strong><br>
+                    　- 競爭性抑制NS5B RNA依賴性RNA聚合酶<br>
+                    　- 導致RNA鏈終止<br>
+                    • <strong>抗藥性：</strong><br>
+                    　- <strong>NS5B基因突變</strong>可導致抗藥性<br>
+                    　- 常見突變位點如S282T<br>
+                    • <strong>療效監測：</strong><br>
+                    　- 使用quantitative RT-PCR檢測HCV RNA<br>
+                    　- 目標是達到持續病毒反應（SVR）<br>
+                    • <strong>現代治療：</strong>常與其他DAA組合使用<br><br>
+                    <strong>正確答案：</strong>是聚合酶抑制劑，不是蛋白酶抑制劑
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 59 -->
+        <div class="slide">
+            <div class="question-number">第 59 題</div>
+            <div class="question-text">有關呼吸道融合病毒（RSV）的敘述，下列何者錯誤？</div>
+            <div class="options">
+                <div class="option">(A) 屬於Pneumoviridae</div>
+                <div class="option">(B) 只感染人類</div>
+                <div class="option">(C) 通常不會造成長時間的viremia</div>
+                <div class="option correct">(D) 自然感染後可終身免疫</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(59)">查看詳解</button>
+            <div class="explanation" id="explanation-59">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>RSV的生物學特性：</strong><br><br>
+                    • <strong>病毒分類：</strong><br>
+                    　- 屬於<strong>Pneumoviridae</strong>（新分類）<br>
+                    　- 原先歸類於副黏病毒科<br>
+                    • <strong>宿主範圍：</strong><br>
+                    　- 主要感染人類<br>
+                    　- 也可感染一些動物（如小鼠、牛）<br>
+                    • <strong>感染特徵：</strong><br>
+                    　- <strong>局部感染：</strong>通常局限於呼吸道<br>
+                    　- 很少造成全身性病毒血症<br>
+                    • <strong>免疫持續性：</strong><br>
+                    　- <strong>免疫力短暫</strong>，可重複感染<br>
+                    　- 自然感染後無法產生終身免疫<br>
+                    　- 這是RSV疫苗開發困難的重要原因<br>
+                    • <strong>流行病學：</strong>成人和兒童都可重複感染<br><br>
+                    <strong>正確答案：</strong>自然感染後免疫力短暫，無法終身免疫
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 60 -->
+        <div class="slide">
+            <div class="question-number">第 60 題</div>
+            <div class="question-text">急性D型肝炎病毒感染者，下列那些血清指標不會呈陽性？</div>
+            <div class="options">
+                <div class="option">(A) HBsAg</div>
+                <div class="option">(B) HDAg</div>
+                <div class="option">(C) anti-HDV</div>
+                <div class="option correct">(D) HDV DNA</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(60)">查看詳解</button>
+            <div class="explanation" id="explanation-60">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>D型肝炎病毒感染的血清學：</strong><br><br>
+                    • <strong>HDV特性：</strong><br>
+                    　- <strong>缺陷病毒</strong>，需要HBV輔助才能複製<br>
+                    　- 使用HBV的表面蛋白作為外殼<br>
+                    • <strong>急性期血清標記：</strong><br>
+                    　- <strong>HBsAg：</strong>必須陽性，HDV依賴HBV<br>
+                    　- <strong>HDAg：</strong>急性期可檢測到D抗原<br>
+                    　- <strong>Anti-HDV：</strong>感染後產生的抗體<br>
+                    • <strong>分子檢測：</strong><br>
+                    　- <strong>HDV RNA：</strong>急性期通常可檢測到<br>
+                    　- <strong>HDV DNA：</strong>HDV是RNA病毒，不含DNA<br>
+                    　- 此選項可能是出題錯誤<br>
+                    • <strong>臨床意義：</strong><br>
+                    　- 共感染或重疊感染都會使肝炎症狀加重<br>
+                    　- 慢性化率高<br><br>
+                    <strong>正確答案：</strong>HDV是RNA病毒，不含DNA
+                </div>
+            </div>
+        </div>
+
+<!-- Question 61 -->
+        <div class="slide">
+            <div class="question-number">第 61 題</div>
+            <div class="question-text">一位大學新生有發燒、喉嚨痛、淋巴腫、血球異常等症狀。該生較可能有以下何種疾病？</div>
+            <div class="options">
+                <div class="option">(A) 人類單純疱疹病毒第一型（herpes simplex type 1） 引起的腦炎</div>
+                <div class="option">(B) 細小病毒（parvovirus） 感染</div>
+                <div class="option correct">(C) EB病毒（Epstein-Barr virus） 引起的單核球增生症（infectious mononucleosis）</div>
+                <div class="option">(D) 輪狀病毒（rotavirus）感染造成的胃腸炎</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(61)">查看詳解</button>
+            <div class="explanation" id="explanation-61">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>傳染性單核球增多症的臨床特徵：</strong><br><br>
+                    • <strong>典型症狀三聯徵：</strong><br>
+                    　- <strong>發燒：</strong>通常持續1-2週<br>
+                    　- <strong>咽喉炎：</strong>嚴重喉嚨痛，扁桃腺腫大<br>
+                    　- <strong>淋巴結腫大：</strong>頸部、腋下、鼠蹊部<br>
+                    • <strong>血液學變化：</strong><br>
+                    　- <strong>非典型淋巴球增多</strong>（>10%或>1000/μL）<br>
+                    　- 總白血球數可能正常或增加<br>
+                    • <strong>好發族群：</strong><br>
+                    　- <strong>青少年和年輕成人</strong>（15-25歲）<br>
+                    　- 大學生是高風險群<br>
+                    • <strong>其他疾病鑑別：</strong><br>
+                    　- HSV腦炎：主要神經系統症狀<br>
+                    　- 細小病毒：主要引起溶血性危機<br>
+                    　- 輪狀病毒：主要腸胃道症狀<br><br>
+                    <strong>正確答案：</strong>EBV引起的單核球增生症
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 62 -->
+        <div class="slide">
+            <div class="question-number">第 62 題</div>
+            <div class="question-text">下列何種病毒最不可能在腦脊髓液偵測到？</div>
+            <div class="options">
+                <div class="option">(A) echovirus</div>
+                <div class="option">(B) herpes simplex virus type 1</div>
+                <div class="option">(C) rubella virus</div>
+                <div class="option correct">(D) human bocavirus</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(62)">查看詳解</button>
+            <div class="explanation" id="explanation-62">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>腦脊髓液病毒檢測分析：</strong><br><br>
+                    • <strong>常見CSF病毒：</strong><br>
+                    　- <strong>Echovirus：</strong>常見的病毒性腦膜炎病原，屬腸病毒<br>
+                    　- <strong>HSV-1：</strong>病毒性腦炎的重要病原，嗜神經性<br>
+                    　- <strong>Rubella virus：</strong>可引起腦炎，特別是先天性感染<br>
+                    • <strong>不侵犯CNS的病毒：</strong><br>
+                    　- <strong>Human bocavirus：</strong>主要引起呼吸道感染<br>
+                    　- 很少侵犯中樞神經系統<br>
+                    　- 主要在呼吸道標本中檢出<br>
+                    • <strong>組織親和性：</strong><br>
+                    　- 病毒的組織親和性決定感染部位<br>
+                    　- 博卡病毒缺乏神經親和性<br>
+                    • <strong>檢測意義：</strong>CSF病毒檢測用於診斷中樞神經系統感染<br><br>
+                    <strong>正確答案：</strong>human bocavirus
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 63 -->
+        <div class="slide">
+            <div class="question-number">第 63 題</div>
+            <div class="question-text">抗HIV藥物中，下列何者藥物與作用機轉配對錯誤？</div>
+            <div class="options">
+                <div class="option">(A) saquinavir可抑制病毒蛋白酶</div>
+                <div class="option">(B) lamivudine可抑制病毒反轉錄酶</div>
+                <div class="option">(C) nevirapine可抑制病毒反轉錄酶</div>
+                <div class="option correct">(D) zidovudine可抑制病毒CCR5共同接受器</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(63)">查看詳解</button>
+            <div class="explanation" id="explanation-63">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>抗HIV藥物分類與機制：</strong><br><br>
+                    • <strong>蛋白酶抑制劑（PI）：</strong><br>
+                    　- <strong>Saquinavir：</strong>抑制HIV蛋白酶，阻止病毒成熟<br>
+                    • <strong>反轉錄酶抑制劑：</strong><br>
+                    　- <strong>Lamivudine：</strong>核苷類反轉錄酶抑制劑（NRTI）<br>
+                    　- <strong>Nevirapine：</strong>非核苷類反轉錄酶抑制劑（NNRTI）<br>
+                    • <strong>錯誤配對：</strong><br>
+                    　- <strong>Zidovudine（AZT）：</strong>核苷類反轉錄酶抑制劑，不是CCR5抑制劑<br>
+                    　- 第一個獲批准的抗HIV藥物<br>
+                    • <strong>CCR5抑制劑：</strong><br>
+                    　- <strong>Maraviroc：</strong>真正的CCR5共同受體抑制劑<br>
+                    　- 阻斷病毒進入細胞<br>
+                    • <strong>治療策略：</strong>現代HIV治療採用高效抗反轉錄病毒療法（HAART）<br><br>
+                    <strong>正確答案：</strong>zidovudine是反轉錄酶抑制劑，不是CCR5抑制劑
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 64 -->
+        <div class="slide">
+            <div class="question-number">第 64 題</div>
+            <div class="question-text">有關腸病毒A71型（Enterovirus A71）的敘述，下列何者最不適當？</div>
+            <div class="options">
+                <div class="option">(A) 病毒外殼為正二十面體結構（icosahedral capsid）</div>
+                <div class="option">(B) 病毒顆粒中之基因體即為其mRNA，可在感染細胞中轉譯出病毒蛋白質</div>
+                <div class="option">(C) 感染幼童可能造成腦膜炎（meningitis）</div>
+                <div class="option correct">(D) 感染不會造成肺水腫</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(64)">查看詳解</button>
+            <div class="explanation" id="explanation-64">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>腸病毒A71的特徵與致病性：</strong><br><br>
+                    • <strong>病毒結構：</strong><br>
+                    　- <strong>正二十面體：</strong>典型的腸病毒形態<br>
+                    　- 無套膜，直徑約30nm<br>
+                    • <strong>基因組特性：</strong><br>
+                    　- <strong>正股RNA：</strong>基因組即為mRNA，可直接轉譯<br>
+                    　- 約7400個核苷酸<br>
+                    • <strong>神經系統併發症：</strong><br>
+                    　- <strong>腦炎、腦膜炎：</strong>是EV-A71的嚴重併發症<br>
+                    　- 急性無力性麻痺<br>
+                    　- 腦幹炎<br>
+                    • <strong>肺部併發症：</strong><br>
+                    　- <strong>肺水腫：</strong>是EV-A71感染的嚴重併發症<br>
+                    　- 神經源性肺水腫<br>
+                    　- 是重要的死亡原因<br>
+                    • <strong>流行病學：</strong>亞洲地區常見，特別是台灣、中國大陸<br><br>
+                    <strong>正確答案：</strong>EV-A71感染會造成肺水腫
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 65 -->
+        <div class="slide">
+            <div class="question-number">第 65 題</div>
+            <div class="question-text">鼻病毒（Rhinovirus）感染常造成上呼吸道感染，也有可能造成嗅覺喪失，下列敘述何者錯誤？</div>
+            <div class="options">
+                <div class="option">(A) 鼻病毒感染可以造成鼻竇炎和中耳炎</div>
+                <div class="option">(B) 鼻病毒感染可以加重兒童氣喘</div>
+                <div class="option">(C) 核酸偵測技術可提高鼻病毒確診率</div>
+                <div class="option correct">(D) C型鼻病毒很容易用人類細胞培養分離</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(65)">查看詳解</button>
+            <div class="explanation" id="explanation-65">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>鼻病毒感染的特徵與診斷：</strong><br><br>
+                    • <strong>併發症：</strong><br>
+                    　- <strong>鼻竇炎：</strong>常見併發症，鼻腔炎症擴散<br>
+                    　- <strong>中耳炎：</strong>通過咽鼓管感染中耳<br>
+                    　- <strong>氣喘加重：</strong>可誘發或加重兒童氣喘發作<br>
+                    • <strong>診斷技術：</strong><br>
+                    　- <strong>RT-PCR：</strong>大幅提高鼻病毒檢出率<br>
+                    　- 傳統培養方法檢出率較低<br>
+                    • <strong>病毒培養：</strong><br>
+                    　- <strong>A、B型鼻病毒：</strong>相對容易培養<br>
+                    　- <strong>C型鼻病毒：</strong>培養困難，主要靠分子診斷<br>
+                    　- C型需要特殊培養條件<br>
+                    • <strong>分子流行病學：</strong><br>
+                    　- 超過100種血清型<br>
+                    　- C型鼻病毒是相對新發現的類群<br><br>
+                    <strong>正確答案：</strong>C型鼻病毒培養困難
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 66 -->
+        <div class="slide">
+            <div class="question-number">第 66 題</div>
+            <div class="question-text">下列那一種病毒含有100多種血清型？</div>
+            <div class="options">
+                <div class="option correct">(A) 鼻病毒（Rhinovirus）</div>
+                <div class="option">(B) 流感病毒（Influenza virus）</div>
+                <div class="option">(C) 副流感病毒（Parainfluenza virus）</div>
+                <div class="option">(D) 呼吸道細胞融合病毒（Respiratory syncytial virus）</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(66)">查看詳解</button>
+            <div class="explanation" id="explanation-66">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>呼吸道病毒血清型比較：</strong><br><br>
+                    • <strong>鼻病毒：</strong><br>
+                    　- <strong>超過100種血清型</strong>，分A、B、C三組<br>
+                    　- RV-A：約80種血清型<br>
+                    　- RV-B：約30種血清型<br>
+                    　- RV-C：50多種基因型<br>
+                    • <strong>其他病毒血清型：</strong><br>
+                    　- <strong>流感病毒：</strong>H1-H18、N1-N11亞型，但總數遠少於100<br>
+                    　- <strong>副流感病毒：</strong>4種主要型別（PIV1-4）<br>
+                    　- <strong>RSV：</strong>主要分A、B兩群<br>
+                    • <strong>疫苗挑戰：</strong><br>
+                    　- 鼻病毒血清型多樣性是疫苗開發困難的主要原因<br>
+                    　- 交叉保護力有限<br>
+                    • <strong>臨床意義：</strong>是普通感冒最常見的病原<br><br>
+                    <strong>正確答案：</strong>鼻病毒（Rhinovirus）
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 67 -->
+        <div class="slide">
+            <div class="question-number">第 67 題</div>
+            <div class="question-text">下列病毒中，何者最常引起人類心臟的疾病？</div>
+            <div class="options">
+                <div class="option">(A) 鼻病毒（rhinovirus）</div>
+                <div class="option">(B) 小兒痲痺病毒（poliovirus）</div>
+                <div class="option correct">(C) 柯沙奇病毒B群（coxsackievirus Group B）</div>
+                <div class="option">(D) 柯沙奇病毒A群（coxsackievirus Group A）</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(67)">查看詳解</button>
+            <div class="explanation" id="explanation-67">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>病毒性心肌炎的病原學：</strong><br><br>
+                    • <strong>柯沙奇B群病毒：</strong><br>
+                    　- <strong>最常見</strong>的病毒性心肌炎病原<br>
+                    　- CVB1-CVB6都可引起心肌炎<br>
+                    　- 對心肌細胞有特殊親和性<br>
+                    • <strong>心臟疾病類型：</strong><br>
+                    　- <strong>急性心肌炎：</strong>最常見<br>
+                    　- <strong>心包膜炎：</strong>也可發生<br>
+                    　- <strong>擴張性心肌病：</strong>慢性後果<br>
+                    • <strong>其他腸病毒比較：</strong><br>
+                    　- <strong>柯沙奇A群：</strong>較少引起心臟病變<br>
+                    　- <strong>脊髓灰質炎病毒：</strong>主要影響神經系統<br>
+                    　- <strong>鼻病毒：</strong>主要引起上呼吸道感染<br>
+                    • <strong>發病機制：</strong>直接細胞毒性作用和自體免疫反應<br><br>
+                    <strong>正確答案：</strong>柯沙奇病毒B群
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 68 -->
+        <div class="slide">
+            <div class="question-number">第 68 題</div>
+            <div class="question-text">下列何種病毒感染後多潛伏在腎臟？</div>
+            <div class="options">
+                <div class="option correct">(A) BK病毒（BK virus）</div>
+                <div class="option">(B) EB病毒（Epstein-Barr virus）</div>
+                <div class="option">(C) 單純疱疹病毒第二型（herpes simplex virus type 2）</div>
+                <div class="option">(D) 疱疹病毒第六型（herpesvirus 6）</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(68)">查看詳解</button>
+            <div class="explanation" id="explanation-68">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>病毒潛伏感染的組織特異性：</strong><br><br>
+                    • <strong>BK病毒（多瘤病毒）：</strong><br>
+                    　- <strong>主要潛伏在腎臟</strong>和泌尿道上皮細胞<br>
+                    　- 免疫抑制時重新活化<br>
+                    　- 引起BK病毒腎病（BKVN）<br>
+                    　- 是腎移植的重要併發症<br>
+                    • <strong>其他病毒潛伏部位：</strong><br>
+                    　- <strong>EBV：</strong>主要潛伏在B細胞和上皮細胞<br>
+                    　- <strong>HSV-2：</strong>潛伏在骶神經節<br>
+                    　- <strong>HHV-6：</strong>潛伏在多種組織，包括淋巴細胞<br>
+                    • <strong>臨床意義：</strong><br>
+                    　- BK病毒檢測是腎移植患者的常規監測<br>
+                    　- 尿液檢測是主要方法<br><br>
+                    <strong>正確答案：</strong>BK病毒
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 69 -->
+        <div class="slide">
+            <div class="question-number">第 69 題</div>
+            <div class="question-text">有關細胞培養使用的DMEM（Dulbecco's modified Eagle's medium）溶液，下列敘述何者錯誤？</div>
+            <div class="options">
+                <div class="option">(A) 如添加酸鹼度指示劑，一般是用phenol red</div>
+                <div class="option">(B) 酸鹼度指示劑在酸性（pH＜6.6）時呈黃色</div>
+                <div class="option">(C) 酸鹼度指示劑在中性（pH在6.6～8.0之間）時呈紅色</div>
+                <div class="option correct">(D) DMEM溶液會變黃色，是因為病毒的核酸使溶液變黃色</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(69)">查看詳解</button>
+            <div class="explanation" id="explanation-69">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>DMEM培養基的pH指示系統：</strong><br><br>
+                    • <strong>pH指示劑：</strong><br>
+                    　- <strong>Phenol red：</strong>最常用的pH指示劑<br>
+                    　- 濃度通常為15-20 mg/L<br>
+                    • <strong>顏色變化：</strong><br>
+                    　- <strong>酸性（pH<6.6）：</strong>呈黃色<br>
+                    　- <strong>中性（pH 6.6-8.0）：</strong>呈紅色或粉紅色<br>
+                    　- <strong>鹼性（pH>8.0）：</strong>呈紫色<br>
+                    • <strong>溶液變黃的真正原因：</strong><br>
+                    　- <strong>細胞代謝產酸</strong>（乳酸等）<br>
+                    　- <strong>CO2流失</strong>導致碳酸緩衝系統失效<br>
+                    　- <strong>培養環境污染</strong><br>
+                    　- <strong>不是病毒核酸造成</strong><br>
+                    • <strong>維持pH：</strong>需要5% CO2培養環境<br><br>
+                    <strong>正確答案：</strong>變黃是pH改變，不是病毒核酸
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 70 -->
+        <div class="slide">
+            <div class="question-number">第 70 題</div>
+            <div class="question-text">使用rhodamine標定時，其所需之激發光（excitation light）為多少nm？</div>
+            <div class="options">
+                <div class="option">(A) 313</div>
+                <div class="option">(B) 490</div>
+                <div class="option correct">(C) 540</div>
+                <div class="option">(D) 578</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(70)">查看詳解</button>
+            <div class="explanation" id="explanation-70">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>螢光染料的光譜特性：</strong><br><br>
+                    • <strong>Rhodamine螢光特性：</strong><br>
+                    　- <strong>激發波長：</strong>約540-570nm（綠光）<br>
+                    　- <strong>發射波長：</strong>約580-620nm（紅光）<br>
+                    　- 屬於紅色螢光染料<br>
+                    • <strong>其他常用螢光染料：</strong><br>
+                    　- <strong>FITC：</strong>激發490nm，發射520nm（綠色）<br>
+                    　- <strong>DAPI：</strong>激發358nm，發射461nm（藍色）<br>
+                    　- <strong>Texas Red：</strong>激發595nm，發射615nm（紅色）<br>
+                    • <strong>技術應用：</strong><br>
+                    　- 免疫螢光染色<br>
+                    　- 雙重或多重標記<br>
+                    　- 流式細胞術<br>
+                    • <strong>選擇原理：</strong>不同螢光染料可組合使用，避免光譜重疊<br><br>
+                    <strong>正確答案：</strong>540nm
+                </div>
+            </div>
+        </div>
+
+<!-- Question 71 -->
+        <div class="slide">
+            <div class="question-number">第 71 題</div>
+            <div class="question-text">有關Herpes simplex virus（HSV）之敘述，下列何者錯誤？</div>
+            <div class="options">
+                <div class="option">(A) 主要為接觸傳染</div>
+                <div class="option correct">(B) 病毒的清除主要靠抗體</div>
+                <div class="option">(C) 可能潛伏感染於三叉神經節</div>
+                <div class="option">(D) 壓力及免疫抑制等多種因素可能導致復發</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(71)">查看詳解</button>
+            <div class="explanation" id="explanation-71">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>HSV免疫機制與感染特徵：</strong><br><br>
+                    • <strong>傳播方式：</strong><br>
+                    　- <strong>主要接觸傳染</strong>：皮膚、黏膜直接接觸<br>
+                    　- 性接觸、親吻、共用器具<br>
+                    • <strong>免疫清除機制：</strong><br>
+                    　- <strong>細胞免疫為主</strong>：CD8+ T細胞是清除HSV的主要機制<br>
+                    　- <strong>抗體作用有限</strong>：主要預防重新感染，對清除潛伏病毒作用很小<br>
+                    　- NK細胞也參與早期防禦<br>
+                    • <strong>潛伏感染：</strong><br>
+                    　- <strong>HSV-1：</strong>主要潛伏在三叉神經節<br>
+                    　- <strong>HSV-2：</strong>主要潛伏在骶神經節<br>
+                    • <strong>復發因素：</strong><br>
+                    　- 壓力、免疫抑制、紫外線、發燒、外傷等<br><br>
+                    <strong>正確答案：</strong>病毒清除主要靠細胞免疫，不是抗體
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 72 -->
+        <div class="slide">
+            <div class="question-number">第 72 題</div>
+            <div class="question-text">下列有關腺病毒（adenovirus）血清型與疾病的配對，何者正確？</div>
+            <div class="options">
+                <div class="option">(A) type 40 / acute respiratory tract disease</div>
+                <div class="option">(B) type 41 / URTI（upper respiratory tract infection）</div>
+                <div class="option">(C) type 7 / pertussis syndrome</div>
+                <div class="option correct">(D) type 8 / epidemic keratoconjunctivitis</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(72)">查看詳解</button>
+            <div class="explanation" id="explanation-72">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>腺病毒血清型與疾病關聯：</strong><br><br>
+                    • <strong>眼部感染：</strong><br>
+                    　- <strong>Type 8, 19, 37：</strong>流行性角結膜炎（EKC）<br>
+                    　- Type 8是最常見的EKC病原<br>
+                    　- 高度傳染性，常造成院內感染<br>
+                    • <strong>腸胃道感染：</strong><br>
+                    　- <strong>Type 40, 41：</strong>腸胃炎，不是呼吸道疾病<br>
+                    　- 主要感染嬰幼兒<br>
+                    • <strong>呼吸道感染：</strong><br>
+                    　- <strong>Type 3, 4, 7：</strong>急性呼吸道疾病<br>
+                    　- <strong>Type 1, 2, 5：</strong>上呼吸道感染<br>
+                    • <strong>組織親和性：</strong>不同血清型有不同的組織親和性和致病模式<br><br>
+                    <strong>正確答案：</strong>type 8引起流行性角結膜炎
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 73 -->
+        <div class="slide">
+            <div class="question-number">第 73 題</div>
+            <div class="question-text">有關單純疱疹病毒（Herpes simplex virus, HSV）的敘述，下列何者錯誤？</div>
+            <div class="options">
+                <div class="option">(A) 主要經由接觸傳染</div>
+                <div class="option">(B) 感染後造成多核大細胞（multinucleated giant cell）</div>
+                <div class="option correct">(C) 感染細胞內出現Owl's eye包涵體</div>
+                <div class="option">(D) 感染HSV第一型及第二型所需的治療藥物是相同的</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(73)">查看詳解</button>
+            <div class="explanation" id="explanation-73">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>HSV感染的病理特徵：</strong><br><br>
+                    • <strong>傳播方式：</strong><br>
+                    　- <strong>接觸傳染</strong>：皮膚、黏膜接觸<br>
+                    　- 性接觸、唾液接觸<br>
+                    • <strong>細胞病理變化：</strong><br>
+                    　- <strong>多核巨細胞</strong>：HSV感染的典型細胞變化<br>
+                    　- 細胞融合形成合胞體<br>
+                    　- 核內嗜酸性包涵體（Cowdry A型）<br>
+                    • <strong>包涵體鑑別：</strong><br>
+                    　- <strong>Owl's eye包涵體</strong>：是CMV感染的特徵，不是HSV<br>
+                    　- HSV的包涵體是嗜酸性核內包涵體<br>
+                    • <strong>治療藥物：</strong><br>
+                    　- <strong>Acyclovir</strong>對HSV-1和HSV-2都有效<br>
+                    　- Valacyclovir、Famciclovir也都適用<br><br>
+                    <strong>正確答案：</strong>Owl's eye包涵體是CMV特徵，不是HSV
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 74 -->
+        <div class="slide">
+            <div class="question-number">第 74 題</div>
+            <div class="question-text">造成nephropathy的BK病毒屬於下列何種病毒科？</div>
+            <div class="options">
+                <div class="option">(A) Flaviviridae</div>
+                <div class="option">(B) Herpesviridae</div>
+                <div class="option">(C) Paramyxoviridae</div>
+                <div class="option correct">(D) Polyomaviridae</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(74)">查看詳解</button>
+            <div class="explanation" id="explanation-74">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>BK病毒的分類與特徵：</strong><br><br>
+                    • <strong>病毒分類：</strong><br>
+                    　- <strong>多瘤病毒科（Polyomaviridae）</strong><br>
+                    　- 包括BK病毒、JC病毒、SV40等<br>
+                    　- 雙股DNA病毒<br>
+                    • <strong>其他病毒科比較：</strong><br>
+                    　- <strong>黃病毒科：</strong>登革病毒、茲卡病毒、C型肝炎病毒<br>
+                    　- <strong>疱疹病毒科：</strong>HSV、CMV、EBV等<br>
+                    　- <strong>副黏病毒科：</strong>麻疹病毒、腮腺炎病毒、RSV<br>
+                    • <strong>BK病毒腎病：</strong><br>
+                    　- <strong>移植腎的重要併發症</strong><br>
+                    　- 免疫抑制後病毒重新活化<br>
+                    　- 可導致移植腎功能喪失<br>
+                    • <strong>檢測：</strong>尿液BK病毒DNA檢測是監測指標<br><br>
+                    <strong>正確答案：</strong>Polyomaviridae（多瘤病毒科）
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 75 -->
+        <div class="slide">
+            <div class="question-number">第 75 題</div>
+            <div class="question-text">天花病毒可被滅絕的原因與下列何者無關？</div>
+            <div class="options">
+                <div class="option">(A) 僅感染人</div>
+                <div class="option correct">(B) 四種血清型間具有交叉保護性</div>
+                <div class="option">(C) 感染後均會出現明顯症狀</div>
+                <div class="option">(D) 有穩定且安全的疫苗可用</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(75)">查看詳解</button>
+            <div class="explanation" id="explanation-75">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>天花病毒滅絕的關鍵因素：</strong><br><br>
+                    • <strong>滅絕的必要條件：</strong><br>
+                    　- <strong>宿主專一性</strong>：只感染人類，無動物宿主<br>
+                    　- <strong>明顯症狀</strong>：感染後都會發病，容易識別和隔離<br>
+                    　- <strong>有效疫苗</strong>：牛痘疫苗提供終身保護<br>
+                    • <strong>病毒特性：</strong><br>
+                    　- <strong>單一血清型</strong>：天花病毒沒有多種血清型<br>
+                    　- 只有天花病毒（variola major）和小天花（variola minor）<br>
+                    　- 兩者間具有交叉保護性<br>
+                    • <strong>錯誤選項分析：</strong><br>
+                    　- 天花病毒沒有四種血清型<br>
+                    　- 這是錯誤的敘述<br>
+                    • <strong>歷史意義：</strong>1980年WHO宣布天花被徹底根除<br><br>
+                    <strong>正確答案：</strong>天花病毒沒有四種血清型
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 76 -->
+        <div class="slide">
+            <div class="question-number">第 76 題</div>
+            <div class="question-text">有關痘病毒（Poxviruses）之敘述，下列何者錯誤？</div>
+            <div class="options">
+                <div class="option">(A) 在細胞質中進行DNA複製</div>
+                <div class="option correct">(B) 造成傳染性軟疣（molluscum contagiosum）、天花（smallpox）、牛痘（cowpox）、水痘（chickenpox）</div>
+                <div class="option">(C) 天花是第一個藉由施打疫苗而根除的疾病</div>
+                <div class="option">(D) 傳染性軟疣（molluscum contagiosum）主要是經由接觸污染物所致</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(76)">查看詳解</button>
+            <div class="explanation" id="explanation-76">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>痘病毒科疾病分類：</strong><br><br>
+                    • <strong>痘病毒科疾病：</strong><br>
+                    　- <strong>傳染性軟疣</strong>：molluscum contagiosum virus<br>
+                    　- <strong>天花</strong>：variola virus<br>
+                    　- <strong>牛痘</strong>：vaccinia virus<br>
+                    　- <strong>猴痘</strong>：monkeypox virus<br>
+                    • <strong>錯誤歸類：</strong><br>
+                    　- <strong>水痘</strong>：由水痘帶狀疱疹病毒（VZV）引起<br>
+                    　- VZV屬於疱疹病毒科，不是痘病毒科<br>
+                    • <strong>痘病毒特徵：</strong><br>
+                    　- <strong>細胞質複製</strong>：DNA病毒但在細胞質中複製<br>
+                    　- 擁有自己的DNA聚合酶<br>
+                    • <strong>歷史意義：</strong><br>
+                    　- 天花是第一個通過疫苗接種根除的疾病<br>
+                    　- 牛痘疫苗的成功應用<br><br>
+                    <strong>正確答案：</strong>水痘是疱疹病毒引起，不是痘病毒
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 77 -->
+        <div class="slide">
+            <div class="question-number">第 77 題</div>
+            <div class="question-text">下列有關腸病毒分型常用的標的基因與偵測方法的組合，何者正確？</div>
+            <div class="options">
+                <div class="option">(A) NS5B及RFLP</div>
+                <div class="option">(B) NTR及PCR/sequencing</div>
+                <div class="option">(C) NTR及hybrid capture assay</div>
+                <div class="option correct">(D) VP1及RT-PCR/sequencing</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(77)">查看詳解</button>
+            <div class="explanation" id="explanation-77">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>腸病毒分子分型方法：</strong><br><br>
+                    • <strong>標準分型方法：</strong><br>
+                    　- <strong>VP1基因</strong>：編碼主要結構蛋白，最適合分型<br>
+                    　- <strong>RT-PCR/定序</strong>：標準的分子分型技術<br>
+                    　- VP1序列分析是腸病毒分型的金標準<br>
+                    • <strong>其他基因/方法比較：</strong><br>
+                    　- <strong>5'NTR</strong>：用於腸病毒屬的檢測，但分型解析度不足<br>
+                    　- <strong>NS5B</strong>：是C型肝炎病毒的基因，不是腸病毒<br>
+                    　- <strong>RFLP</strong>：限制性內切酶片段長度多態性，較舊的方法<br>
+                    　- <strong>Hybrid capture</strong>：主要用於HPV檢測<br>
+                    • <strong>技術優勢：</strong><br>
+                    　- VP1基因變異度適中，適合種間和型間區分<br>
+                    　- 序列分析提供最高的分型準確性<br><br>
+                    <strong>正確答案：</strong>VP1及RT-PCR/sequencing
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 78 -->
+        <div class="slide">
+            <div class="question-number">第 78 題</div>
+            <div class="question-text">下列何者無法利用中和試驗（neutralization test, NT）鑑定病毒型別？</div>
+            <div class="options">
+                <div class="option">(A) 腸病毒（enterovirus）</div>
+                <div class="option correct">(B) 人類乳突病毒（human papillomavirus）</div>
+                <div class="option">(C) 鼻病毒（rhinovirus）</div>
+                <div class="option">(D) 腺病毒（adenovirus）</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(78)">查看詳解</button>
+            <div class="explanation" id="explanation-78">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>中和試驗的適用性分析：</strong><br><br>
+                    • <strong>中和試驗原理：</strong><br>
+                    　- 利用特異性抗血清中和病毒感染力<br>
+                    　- 需要病毒能在細胞培養中增殖<br>
+                    　- 觀察細胞病變效應（CPE）的抑制<br>
+                    • <strong>適用的病毒：</strong><br>
+                    　- <strong>腸病毒</strong>：可用中和試驗分型<br>
+                    　- <strong>鼻病毒</strong>：可用中和試驗分型<br>
+                    　- <strong>腺病毒</strong>：可用中和試驗分型<br>
+                    • <strong>不適用的病毒：</strong><br>
+                    　- <strong>HPV</strong>：無法在一般細胞培養中大量增殖<br>
+                    　- 需要特殊的分化上皮細胞環境<br>
+                    　- 主要用分子方法（PCR/定序）進行分型<br>
+                    • <strong>技術限制：</strong>中和試驗需要活病毒和易感細胞系<br><br>
+                    <strong>正確答案：</strong>人類乳突病毒（HPV）
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 79 -->
+        <div class="slide">
+            <div class="question-number">第 79 題</div>
+            <div class="question-text">下列何者最符合冠狀病毒之特性？</div>
+            <div class="options">
+                <div class="option">(A) 正向RNA基因體，由單一RNA製造結構蛋白</div>
+                <div class="option">(B) 負向RNA基因體，由單一RNA製造酵素蛋白</div>
+                <div class="option correct">(C) 正向RNA基因體，由數條mRNA製造個別蛋白</div>
+                <div class="option">(D) 負向RNA基因體，由數條mRNA製造個別蛋白</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(79)">查看詳解</button>
+            <div class="explanation" id="explanation-79">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>冠狀病毒的分子生物學特徵：</strong><br><br>
+                    • <strong>基因組特性：</strong><br>
+                    　- <strong>正向RNA基因組</strong>：約27-32kb，是最大的RNA病毒<br>
+                    　- 基因組可直接作為mRNA轉譯<br>
+                    • <strong>轉錄策略：</strong><br>
+                    　- <strong>不連續轉錄</strong>：產生一系列次基因組mRNA<br>
+                    　- 每個mRNA編碼不同的病毒蛋白<br>
+                    　- 形成nested set的mRNA<br>
+                    • <strong>蛋白質表現：</strong><br>
+                    　- <strong>多個mRNA</strong>：分別編碼結構蛋白（S、E、M、N）和非結構蛋白<br>
+                    　- 不是單一多蛋白策略<br>
+                    • <strong>與其他病毒比較：</strong><br>
+                    　- 流感病毒：負向RNA，分段基因組<br>
+                    　- 小RNA病毒：正向RNA，單一多蛋白<br><br>
+                    <strong>正確答案：</strong>正向RNA基因體，由數條mRNA製造個別蛋白
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 80 -->
+        <div class="slide">
+            <div class="question-number">第 80 題</div>
+            <div class="question-text">有關Hemadsorption assay的敘述，下列何者正確？</div>
+            <div class="options">
+                <div class="option">(A) Respiratory syncytial virus可以此法鑑定</div>
+                <div class="option">(B) 必須在37℃作用30分鐘</div>
+                <div class="option correct">(C) 流感病毒檢測主要使用新鮮的天竺鼠紅血球</div>
+                <div class="option">(D) 主要拿病毒培養的上清液與紅血球混合</div>
+            </div>
+            <button class="explanation-toggle" onclick="toggleExplanation(80)">查看詳解</button>
+            <div class="explanation" id="explanation-80">
+                <h4>詳細解析</h4>
+                <div class="explanation-content">
+                    <strong>血球吸附試驗的原理與操作：</strong><br><br>
+                    • <strong>試驗原理：</strong><br>
+                    　- 檢測感染細胞表面表現的血凝素<br>
+                    　- 血凝素與紅血球表面受體結合<br>
+                    　- 形成細胞-紅血球花環結構<br>
+                    • <strong>適用病毒：</strong><br>
+                    　- <strong>流感病毒</strong>：具有血凝素，適用此法<br>
+                    　- <strong>RSV</strong>：不具血凝素，無法進行血球吸附<br>
+                    　- 副流感病毒、Newcastle disease virus等<br>
+                    • <strong>技術條件：</strong><br>
+                    　- <strong>溫度</strong>：通常在4°C進行，不是37°C<br>
+                    　- <strong>紅血球種類</strong>：天竺鼠或雞的紅血球<br>
+                    　- <strong>檢測對象</strong>：感染細胞單層，不是培養上清<br>
+                    • <strong>臨床應用：</strong>快速鑑定具有血凝活性的病毒<br><br>
+                    <strong>正確答案：</strong>流感病毒檢測主要使用新鮮的天竺鼠紅血球
+                </div>
+            </div>
+        </div>
+    <div class="controls">
+        <button class="btn" id="prev-btn" onclick="previousSlide()">上一題</button>
+        <button class="btn" id="next-btn" onclick="nextSlide()">下一題</button>
+        <button class="btn shuffle-btn" onclick="reshuffleAllQuestions()">🔀 重新隨機</button>
+    </div>
+    
+    <script>
+        let currentSlide = 0;
+        let showAnswers = false;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        // 儲存原始選項數據的結構
+        const originalQuestions = new Map();
+        
+        document.getElementById('total-slides').textContent = totalSlides;
+        
+        // Fisher-Yates 洗牌算法
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+        
+        // 初始化時儲存所有題目的原始數據並隨機化
+        function initializeQuestions() {
+            slides.forEach((slide, slideIndex) => {
+                const options = slide.querySelectorAll('.option');
+                if (options.length === 4) { // 確保是題目頁面
+                    const questionData = {
+                        options: [],
+                        correctIndex: -1
+                    };
+                    
+                    // 儲存原始選項數據（去除字母標籤）
+                    options.forEach((option, index) => {
+                        const optionText = option.textContent.trim();
+                        const isCorrect = option.classList.contains('correct');
+                        
+                        // 提取選項內容（去除 (A)、(B) 等標籤）
+                        const contentMatch = optionText.match(/^\([A-D]\)\s*(.+)$/);
+                        const content = contentMatch ? contentMatch[1] : optionText;
+                        
+                        questionData.options.push({
+                            content: content,
+                            isCorrect: isCorrect,
+                            originalLetter: String.fromCharCode(65 + index) // A, B, C, D
+                        });
+                        
+                        if (isCorrect) {
+                            questionData.correctIndex = index;
+                        }
+                    });
+                    
+                    // 隨機化選項順序
+                    const shuffledOptions = shuffleArray([...questionData.options]);
+                    
+                    // 更新DOM中的選項（重新分配字母標籤）
+                    options.forEach((option, index) => {
+                        const newLetter = String.fromCharCode(65 + index); // A, B, C, D
+                        option.textContent = `(${newLetter}) ${shuffledOptions[index].content}`;
+                        option.classList.remove('correct');
+                        
+                        if (shuffledOptions[index].isCorrect) {
+                            option.classList.add('correct');
+                        }
+                    });
+                    
+                    originalQuestions.set(slideIndex, {
+                        original: questionData,
+                        shuffled: shuffledOptions
+                    });
+                }
+            });
+        }
+        
+        // 重新隨機化所有題目
+        function reshuffleAllQuestions() {
+            slides.forEach((slide, slideIndex) => {
+                const options = slide.querySelectorAll('.option');
+                if (options.length === 4 && originalQuestions.has(slideIndex)) {
+                    const questionData = originalQuestions.get(slideIndex);
+                    
+                    // 重新隨機化
+                    const newShuffledOptions = shuffleArray(questionData.original.options);
+                    
+                    // 更新DOM（重新分配字母標籤）
+                    options.forEach((option, index) => {
+                        const newLetter = String.fromCharCode(65 + index); // A, B, C, D
+                        option.textContent = `(${newLetter}) ${newShuffledOptions[index].content}`;
+                        option.classList.remove('correct', 'hidden');
+                        
+                        if (newShuffledOptions[index].isCorrect) {
+                            option.classList.add('correct');
+                            if (!showAnswers) {
+                                option.classList.add('hidden');
+                            }
+                        }
+                    });
+                    
+                    // 更新儲存的數據
+                    originalQuestions.set(slideIndex, {
+                        original: questionData.original,
+                        shuffled: newShuffledOptions
+                    });
+                }
+            });
+            
+            // 隱藏所有詳解
+            document.querySelectorAll('.explanation').forEach(explanation => {
+                explanation.classList.remove('show');
+            });
+            document.querySelectorAll('.explanation-toggle').forEach(btn => {
+                btn.textContent = '查看詳解';
+            });
+        }
+        
+        function toggleAnswers() {
+            showAnswers = !showAnswers;
+            const toggleBtn = document.getElementById('answer-toggle');
+            const correctOptions = document.querySelectorAll('.option.correct');
+            
+            if (showAnswers) {
+                // Show answers
+                correctOptions.forEach(option => {
+                    option.classList.remove('hidden');
+                });
+                toggleBtn.textContent = '隱藏答案';
+                toggleBtn.classList.add('show-answers');
+            } else {
+                // Hide answers
+                correctOptions.forEach(option => {
+                    option.classList.add('hidden');
+                });
+                toggleBtn.textContent = '顯示答案';
+                toggleBtn.classList.remove('show-answers');
+            }
+        }
+        
+        function initializeAnswers() {
+            // Initially hide all correct answers
+            const correctOptions = document.querySelectorAll('.option.correct');
+            correctOptions.forEach(option => {
+                option.classList.add('hidden');
+            });
+        }
+        
+        function toggleExplanation(questionNumber) {
+            const explanation = document.getElementById(`explanation-${questionNumber}`);
+            const button = explanation.previousElementSibling;
+            
+            if (explanation.classList.contains('show')) {
+                explanation.classList.remove('show');
+                button.textContent = '查看詳解';
+            } else {
+                explanation.classList.add('show');
+                button.textContent = '隱藏詳解';
+            }
+        }
+        
+        function updateSlidePosition() {
+            // Hide all slides
+            slides.forEach((slide, index) => {
+                if (index === currentSlide) {
+                    slide.style.display = 'flex';
+                    slide.style.transform = 'translateX(0)';
+                } else {
+                    slide.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('current-slide').textContent = currentSlide + 1;
+            
+            // Update button states
+            document.getElementById('prev-btn').disabled = currentSlide === 0;
+            document.getElementById('next-btn').disabled = currentSlide === totalSlides - 1;
+        }
+        
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlidePosition();
+            }
+        }
+        
+        function previousSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlidePosition();
+            }
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') {
+                previousSlide();
+            } else if (e.key === 'ArrowRight') {
+                nextSlide();
+            } else if (e.key === 'r' || e.key === 'R') {
+                reshuffleAllQuestions();
+            }
+        });
+        
+        // Initialize
+        initializeQuestions();
+        initializeAnswers();
+        updateSlidePosition();
+    </script>
+</body>
+</html>
